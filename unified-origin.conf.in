@@ -20,3 +20,7 @@ LogFormat {{LOG_FORMAT}} log_format
 
   DocumentRoot /var/www/unified-origin
 </VirtualHost>
+
+<Directory /var/www/unified-origin>
+  Require all granted
+</Directory>
