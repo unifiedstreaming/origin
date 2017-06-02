@@ -1,0 +1,22 @@
+LoadModule smooth_streaming_module modules/mod_smooth_streaming.so
+AddHandler smooth-streaming.extensions .ism .isml
+
+<Location />
+  UspHandleIsm on
+</Location>
+
+UspLicenseKey /etc/usp-license.key
+
+LogFormat {{LOG_FORMAT}} log_format
+
+
+<VirtualHost *:80>
+  CustomLog /dev/stdout log_format
+  ErrorLog /dev/stderr
+
+  LogLevel {{LOG_LEVEL}}
+
+  AddHandler smooth-streaming.extensions .ism .isml .mp4
+
+  DocumentRoot /var/www/unified-origin
+</VirtualHost>
