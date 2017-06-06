@@ -1,7 +1,4 @@
-![logo](https://raw.githubusercontent.com/unifiedstreaming/origin/master/unifiedstreaming-logo-black.jpg)
-
-Origin
-===========
+![logo](https://raw.githubusercontent.com/unifiedstreaming/origin/master/unifiedstreaming-logo-black.png)
 
 What is Unified Origin?
 -----------------------
@@ -29,7 +26,7 @@ Example
 -------
 A simple example, running locally on port 1080 with remote storage in S3 and debug logging:
 
-```
+```bash
 docker run \
   -e USP_LICENSE_KEY=<license_key> \
   -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
