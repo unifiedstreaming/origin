@@ -1,6 +1,8 @@
 LoadModule smooth_streaming_module modules/mod_smooth_streaming.so
 AddHandler smooth-streaming.extensions .ism .isml
 
+ServerName unified-origin
+
 <Location />
   UspHandleIsm on
 </Location>
@@ -8,7 +10,6 @@ AddHandler smooth-streaming.extensions .ism .isml
 UspLicenseKey /etc/usp-license.key
 
 LogFormat {{LOG_FORMAT}} log_format
-
 
 <VirtualHost *:80>
   CustomLog /dev/stdout log_format

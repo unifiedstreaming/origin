@@ -2,18 +2,18 @@
 set -e
 
 # set env vars to defaults if not already set
-if [ ! $LOG_LEVEL ]
+if [ -z "$LOG_LEVEL" ]
   then
   export LOG_LEVEL=warn
 fi
 
-if [ ! $LOG_FORMAT ]
+if [ -z "$LOG_FORMAT" ]
   then
   export LOG_FORMAT="%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" %D"
 fi
 
 # validate required variables are set
-if [ ! $USP_LICENSE_KEY ]
+if [ -z "$USP_LICENSE_KEY" ]
   then
   echo >&2 "Error: USP_LICENSE_KEY environment variable is required but not set."
   exit 1
