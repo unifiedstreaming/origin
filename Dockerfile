@@ -25,6 +25,8 @@ COPY s3_auth.conf.in /etc/apache2/conf.d/s3_auth.conf.in
 COPY remote_storage.conf.in /etc/apache2/conf.d/remote_storage.conf.in
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY index.html /var/www/unified-origin/index.html
+COPY clientaccesspolicy.xml /var/www/unified-origin/clientaccesspolicy.xml
+COPY crossdomain.xml /var/www/unified-origin/crossdomain.xml
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

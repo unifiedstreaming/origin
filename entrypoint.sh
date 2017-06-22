@@ -12,6 +12,11 @@ if [ -z "$LOG_FORMAT" ]
   export LOG_FORMAT="%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" %D"
 fi
 
+if [ -z "$REMOTE_PATH"]
+  then
+  export REMOTE_PATH=remote
+fi
+
 # validate required variables are set
 if [ -z "$USP_LICENSE_KEY" ]
   then
@@ -30,10 +35,16 @@ if [ $REMOTE_STORAGE_URL ]
 fi
 
 # s3 auth
-if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ]
+if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ $S3_REGION ]
   then
-  /bin/sed "s/{{S3_ACCESS_KEY}}/${S3_ACCESS_KEY}/g; s/{{S3_SECRET_KEY}}/${S3_SECRET_KEY}/g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
+  S3_REGION="S3Region ${S3_REGION}"
+  /bin/sed "s/{{REMOTE_PATH}}/${REMOTE_PATH}/g; s/{{S3_ACCESS_KEY}}/${S3_ACCESS_KEY}/g; s/{{S3_SECRET_KEY}}/${S3_SECRET_KEY}/g; s/{{S3_REGION}}/${S3_REGION}/g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
 fi
+if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ -z $S3_REGION ]
+  then
+  /bin/sed "s/{{REMOTE_PATH}}/${REMOTE_PATH}/g; s/{{S3_ACCESS_KEY}}/${S3_ACCESS_KEY}/g; s/{{S3_SECRET_KEY}}/${S3_SECRET_KEY}/g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
+fi
+
 
 # USP license
 echo $USP_LICENSE_KEY > /etc/usp-license.key

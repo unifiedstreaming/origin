@@ -1,4 +1,5 @@
-<Location /remote>
+<Location /{{REMOTE_PATH}}>
   S3SecretKey {{S3_SECRET_KEY}}
   S3AccessKey {{S3_ACCESS_KEY}}
+  {{S3_REGION}}
 </Location>

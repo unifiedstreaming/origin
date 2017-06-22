@@ -1,3 +1,3 @@
-<Directory /var/www/unified-origin/remote>
+<Directory /var/www/unified-origin/{{REMOTE_PATH}}>
   IsmProxyPass {{REMOTE_STORAGE_URL}}
 </Directory>
