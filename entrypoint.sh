@@ -31,7 +31,7 @@ fi
 # remote storage
 if [ $REMOTE_STORAGE_URL ]
   then
-  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
+  /bin/sed "s/{{REMOTE_PATH}}/${REMOTE_PATH}/g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
 fi
 
 # s3 auth
