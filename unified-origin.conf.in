@@ -20,6 +20,12 @@ LogFormat {{LOG_FORMAT}} log_format
   AddHandler smooth-streaming.extensions .ism .isml .mp4
 
   DocumentRoot /var/www/unified-origin
+
+  Header set Access-Control-Allow-Headers "origin, range"
+  Header set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Expose-Headers "Server,range"
+
 </VirtualHost>
 
 <Directory /var/www/unified-origin>
