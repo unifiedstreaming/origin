@@ -12,7 +12,7 @@ if [ -z "$LOG_FORMAT" ]
   export LOG_FORMAT="%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" %D"
 fi
 
-if [ -z "$REMOTE_PATH"]
+if [ -z "$REMOTE_PATH" ]
   then
   export REMOTE_PATH=remote
 fi
