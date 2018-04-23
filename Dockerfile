@@ -18,8 +18,9 @@ RUN apk --update \
 RUN mkdir -p /run/apache2 \
  && ln -s /dev/stderr /var/log/apache2/error.log \
  && ln -s /dev/stdout /var/log/apache2/access.log \
- && mkdir -p /var/www/unified-origin
+ && mkdir -p /var/www/unified-origin  
 
+COPY httpd.conf /etc/apache2/httpd.conf
 COPY unified-origin.conf.in /etc/apache2/conf.d/unified-origin.conf.in
 COPY s3_auth.conf.in /etc/apache2/conf.d/s3_auth.conf.in
 COPY remote_storage.conf.in /etc/apache2/conf.d/remote_storage.conf.in
