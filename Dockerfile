@@ -11,8 +11,8 @@ RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
 RUN apk --update \
         --repository http://apk.unified-streaming.com/repo \
         add \
-          mp4split=1.8.4-r0 \
-          mod_smooth_streaming=1.8.4-r0 \
+          mp4split=1.8.5-r0 \
+          mod_smooth_streaming=1.8.5-r0 \
  && rm -f /var/cache/apk/*
 
 RUN mkdir -p /run/apache2 \
