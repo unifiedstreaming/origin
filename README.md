@@ -34,7 +34,7 @@ docker run \
   -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
   -e LOG_LEVEL=debug \
   -p 1080:80 \
-  unifiedstreaming/origin:1.10.12
+  unifiedstreaming/origin:1.10.18
 ```
 
 Tutorial
