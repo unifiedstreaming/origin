@@ -11,14 +11,14 @@ RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
 RUN apk --update \
         --repository https://stable.apk.unified-streaming.com/alpine/v3.11 \
         add \
-          mp4split=1.10.18-r0 \
-          mod_smooth_streaming=1.10.18-r0 \
+          mp4split=1.10.28-r0 \
+          mod_smooth_streaming=1.10.28-r0 \
  && rm -f /var/cache/apk/*
 
 RUN mkdir -p /run/apache2 \
  && ln -s /dev/stderr /var/log/apache2/error.log \
  && ln -s /dev/stdout /var/log/apache2/access.log \
- && mkdir -p /var/www/unified-origin  
+ && mkdir -p /var/www/unified-origin
 
 COPY httpd.conf /etc/apache2/httpd.conf
 COPY unified-origin.conf.in /etc/apache2/conf.d/unified-origin.conf.in
