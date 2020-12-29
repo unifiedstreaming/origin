@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.12
 LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
 
 # Install packages
