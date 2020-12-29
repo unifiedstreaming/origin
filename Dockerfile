@@ -9,7 +9,7 @@ RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
   https://stable.apk.unified-streaming.com/alpine@unified-streaming.com.rsa.pub
 
 RUN apk --update \
-        --repository https://stable.apk.unified-streaming.com/alpine/v3.11 \
+        --repository https://stable.apk.unified-streaming.com/alpine/v3.12 \
         add \
           mp4split=1.10.28-r0 \
           mod_smooth_streaming=1.10.28-r0 \
