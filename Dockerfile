@@ -2,7 +2,7 @@ FROM alpine:3.12
 LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
 
 # Install packages
-RUN apk --update add apache2 \
+RUN apk --update add apache2 apache2-proxy \
  && rm -f /var/cache/apk/*
 
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
@@ -13,6 +13,7 @@ RUN apk --update \
         add \
           mp4split=1.10.28-r0 \
           mod_smooth_streaming=1.10.28-r0 \
+	        mod_unified_s3_auth=1.10.28-r0 \
  && rm -f /var/cache/apk/*
 
 RUN mkdir -p /run/apache2 \

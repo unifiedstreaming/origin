@@ -5,6 +5,7 @@ ServerName unified-origin
 
 <Location />
   UspHandleIsm on
+  UspEnableSubreq on
 </Location>
 
 UspLicenseKey /etc/usp-license.key
