@@ -1,19 +1,32 @@
 LoadModule smooth_streaming_module modules/mod_smooth_streaming.so
-AddHandler smooth-streaming.extensions .ism .isml
 
-ServerName unified-origin
-
-<Location />
-  UspHandleIsm on
-  UspEnableSubreq on
-</Location>
 
 UspLicenseKey /etc/usp-license.key
 Define UspLicenseFile /etc/usp-license.key
 
 LogFormat {{LOG_FORMAT}} log_format
 
+<Directory /var/www/unified-origin>
+  Require all granted
+</Directory>
+
 <VirtualHost *:80>
+  ServerName unified-origin
+
+  AddHandler smooth-streaming.extensions .ism .isml .mp4
+
+  <Location "/">
+    UspHandleIsm on
+    UspEnableSubreq on
+  </Location>
+
+
+  <Location "/{{REMOTE_PATH}}/">
+    ProxyPass http://localhost:81/
+    ProxyPassReverse http://localhost:81/
+  </Location>
+
+
   CustomLog /dev/stdout log_format
   ErrorLog /dev/stderr
 
@@ -63,9 +76,9 @@ LogFormat {{LOG_FORMAT}} log_format
   ExtFilterDefine ef_utc_change                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCChange}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_remove                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCRemove}${ManifestEditCmdPost}"
 
-# Currently LocationMatch regex onl works via local ism (which could refer to S3 media)
-# If both ISM (via ismproxypass) and media are hosted on S3 manifest edit wont be invoked 
-  <LocationMatch ".isml?/\.mpd">
+# Manifest edit can now be invoked on both local and remote manifests successfully.
+# To ensure value playback use a public ip and not localhost as this may cause issue in specific players.
+  <LocationMatch ".*\.[is]sm[l]?/\.mpd$">
     <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_order/">
         SetOutputFilter ef_adaptation_sets_order
         ExtFilterOptions LogStdErr Onfail=abort
@@ -128,8 +141,29 @@ LogFormat {{LOG_FORMAT}} log_format
 
   </LocationMatch>
 
-</VirtualHost>
+ </VirtualHost>
 
-<Directory /var/www/unified-origin>
-  Require all granted
-</Directory>
+
+ <VirtualHost *:81>
+  ServerName unified-origin-backend
+
+  CustomLog /dev/stdout log_format
+  ErrorLog /dev/stderr
+
+  LogLevel {{LOG_LEVEL}} rewrite:trace6
+
+  <Location "/">
+    UspHandleIsm on
+    UspEnableSubreq on
+  </Location>
+
+  <Location "/">
+     IsmProxyPass {{REMOTE_STORAGE_URL}}
+  </Location>
+
+  <Proxy "{{REMOTE_STORAGE_URL}}">
+    SSLProxyEngine on
+    ProxySet connectiontimeout=5 enablereuse=on keepalive=on retry=0 timeout=30 ttl=300
+  </Proxy>
+
+</VirtualHost>

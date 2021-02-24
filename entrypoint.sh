@@ -26,24 +26,24 @@ fi
 
 # update configuration based on env vars
 # log levels
-/bin/sed "s@{{LOG_LEVEL}}@${LOG_LEVEL}@g; s@{{LOG_FORMAT}}@'${LOG_FORMAT}'@g;" /etc/apache2/conf.d/unified-origin.conf.in > /etc/apache2/conf.d/unified-origin.conf
+/bin/sed "s@{{LOG_LEVEL}}@${LOG_LEVEL}@g; s@{{LOG_FORMAT}}@'${LOG_FORMAT}'@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/unified-origin.conf.in > /etc/apache2/conf.d/unified-origin.conf
 
 # remote storage
-if [ $REMOTE_STORAGE_URL ]
-  then
-  /bin/sed "s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
-fi
-
-# s3 auth
-if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ $S3_REGION ]
-  then
-  S3_REGION="S3Region ${S3_REGION}"
-  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{S3_ACCESS_KEY}}@${S3_ACCESS_KEY}@g; s@{{S3_SECRET_KEY}}@${S3_SECRET_KEY}@g; s@{{S3_REGION}}@${S3_REGION}@g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
-fi
-if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ -z $S3_REGION ]
-  then
-  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{S3_ACCESS_KEY}}@${S3_ACCESS_KEY}@g; s@{{S3_SECRET_KEY}}@${S3_SECRET_KEY}@g; s@{{S3_REGION}}@@g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
-fi
+#if [ $REMOTE_STORAGE_URL ]
+#  then
+#  /bin/sed "s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
+#fi
+#
+## s3 auth
+#if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ $S3_REGION ]
+#  then
+#  S3_REGION="S3Region ${S3_REGION}"
+#  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{S3_ACCESS_KEY}}@${S3_ACCESS_KEY}@g; s@{{S3_SECRET_KEY}}@${S3_SECRET_KEY}@g; s@{{S3_REGION}}@${S3_REGION}@g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
+#fi
+#if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ -z $S3_REGION ]
+#  then
+#  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{S3_ACCESS_KEY}}@${S3_ACCESS_KEY}@g; s@{{S3_SECRET_KEY}}@${S3_SECRET_KEY}@g; s@{{S3_REGION}}@@g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
+#fi
 
 # transcode
 if [ $TRANSCODE_PATH ] && [ $TRANSCODE_URL ]
