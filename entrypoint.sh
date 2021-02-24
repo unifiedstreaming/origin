@@ -29,7 +29,7 @@ fi
 /bin/sed "s@{{LOG_LEVEL}}@${LOG_LEVEL}@g; s@{{LOG_FORMAT}}@'${LOG_FORMAT}'@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/unified-origin.conf.in > /etc/apache2/conf.d/unified-origin.conf
 
 # remote storage
-if [ $REMOTE_STORAGE_URL ]
+#if [ $REMOTE_STORAGE_URL ]
 #  then
 #  /bin/sed "s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
 #fi
