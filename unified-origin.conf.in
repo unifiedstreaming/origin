@@ -9,6 +9,7 @@ ServerName unified-origin
 </Location>
 
 UspLicenseKey /etc/usp-license.key
+Define UspLicenseFile /etc/usp-license.key
 
 LogFormat {{LOG_FORMAT}} log_format
 
@@ -26,6 +27,106 @@ LogFormat {{LOG_FORMAT}} log_format
   Header set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Expose-Headers "Server,range"
+
+
+  AddOutputFilterByType SUBSTITUTE application/dash+xml
+  Substitute "s@(initialization|media)=\"(.*):@$1=\"\./$2:@"
+
+  Define ManifestEditConfDir /usr/share/manifest-edit
+  Define ManifestEditExe /usr/bin/manifest_edit
+  Define ManifestEditCmdPre "${ManifestEditExe} --license_key=${UspLicenseFile} -v 2 -o stdout: --python_pipeline_config="
+  Define ManifestEditCmdPost " stdin:"
+
+  Define PipelineConfAdaptationSetsOrder                "${ManifestEditConfDir}/adaptation_sets_order.yaml"
+  Define PipelineConfAdaptationSetsRemoval              "${ManifestEditConfDir}/adaptation_sets_removal.yaml"
+  Define PipelineConfAdaptationSetsRepresentationsOrder "${ManifestEditConfDir}/adaptation_sets_representations_order.yaml"
+  Define PipelineConfAdaptationSetsSwitching            "${ManifestEditConfDir}/adaptation_sets_switching.yaml"
+  Define PipelineConfLowLatency                         "${ManifestEditConfDir}/low_latency.yaml"
+  Define PipelineConfLowLatencyWithEssentialProperty    "${ManifestEditConfDir}/low_latency_with_essential_property.yaml"
+  Define PipelineConfRepresentationsOrder               "${ManifestEditConfDir}/representations_order.yaml"
+  Define PipelineConfRepresentationsRemoval             "${ManifestEditConfDir}/representations_removal.yaml"
+  Define PipelineConfSupplementalPropertyAdd            "${ManifestEditConfDir}/supplemental_property_add.yaml"
+  Define PipelineConfUTCAdd                             "${ManifestEditConfDir}/utc_add.yaml"
+  Define PipelineConfUTCChange                          "${ManifestEditConfDir}/utc_change.yaml"
+  Define PipelineConfUTCRemove                          "${ManifestEditConfDir}/utc_remove.yaml"
+
+  ExtFilterDefine ef_adaptation_sets_order                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsOrder}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_adaptation_sets_removal               mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsRemoval}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_adaptation_sets_representations_order mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsRepresentationsOrder}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_adaptation_sets_switching             mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsSwitching}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_low_latency                           mode=output cmd="${ManifestEditCmdPre}${PipelineConfLowLatency}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_low_latency_with_essential_property   mode=output cmd="${ManifestEditCmdPre}${PipelineConfLowLatencyWithEssentialProperty}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_representations_order                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfRepresentationsOrder}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_representations_removal               mode=output cmd="${ManifestEditCmdPre}${PipelineConfRepresentationsRemoval}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_supplemental_property_add             mode=output cmd="${ManifestEditCmdPre}${PipelineConfSupplementalPropertyAdd}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_utc_add                               mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCAdd}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_utc_change                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCChange}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_utc_remove                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCRemove}${ManifestEditCmdPost}"
+
+# Currently LocationMatch regex onl works via local ism (which could refer to S3 media)
+# If both ISM (via ismproxypass) and media are hosted on S3 manifest edit wont be invoked 
+  <LocationMatch ".isml?/\.mpd">
+    <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_order/">
+        SetOutputFilter ef_adaptation_sets_order
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_removal/">
+        SetOutputFilter ef_adaptation_sets_removal
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_representations_order/">
+        SetOutputFilter ef_adaptation_sets_representations_order
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_switching/">
+        SetOutputFilter ef_adaptation_sets_switching
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=low_latency/">
+        SetOutputFilter ef_low_latency
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=low_latency_with_essential_property/">
+        SetOutputFilter ef_low_latency_with_essential_property
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=representations_order/">
+        SetOutputFilter ef_representations_order
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=representations_removal/">
+        SetOutputFilter ef_representations_removal
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=supplemental_property_add/">
+        SetOutputFilter ef_supplemental_property_add
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=utc_add/">
+        SetOutputFilter ef_utc_add
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=utc_change/">
+        SetOutputFilter ef_utc_change
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=utc_remove/">
+        SetOutputFilter ef_utc_remove
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+  </LocationMatch>
 
 </VirtualHost>
 
