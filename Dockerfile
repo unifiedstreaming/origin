@@ -28,7 +28,7 @@ RUN mkdir -p /run/apache2 \
 COPY httpd.conf /etc/apache2/httpd.conf
 COPY unified-origin.conf.in /etc/apache2/conf.d/unified-origin.conf.in
 COPY s3_auth.conf.in /etc/apache2/conf.d/s3_auth.conf.in
-#COPY remote_storage.conf.in /etc/apache2/conf.d/remote_storage.conf.in
+COPY remote_storage.conf.in /etc/apache2/conf.d/remote_storage.conf.in
 COPY transcode.conf.in /etc/apache2/conf.d/transcode.conf.in
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY index.html /var/www/unified-origin/index.html

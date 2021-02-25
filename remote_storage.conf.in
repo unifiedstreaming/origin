@@ -1,9 +1,25 @@
-<Location "/{{REMOTE_PATH}}/">
-    IsmProxyPass "http://localhost:81/"
-</Location>
+<VirtualHost *:81>
+ ServerName unified-origin-backend
 
-# Proxy location and timeout parameters for apache workers when using UspEnableSubreq
-<Proxy "http://localhost:81/">
-    SSLProxyEngine on
-    ProxySet connectiontimeout=5 enablereuse=on keepalive=on retry=0 timeout=30 ttl=300
-</Proxy>
+ LogFormat {{LOG_FORMAT}} log_format
+
+ CustomLog /dev/stdout log_format
+ ErrorLog /dev/stderr
+
+ LogLevel {{LOG_LEVEL}}
+
+ <Location "/">
+   UspHandleIsm on
+   UspEnableSubreq on
+ </Location>
+
+ <Location "/">
+    IsmProxyPass {{REMOTE_STORAGE_URL}}
+ </Location>
+
+ <Proxy "{{REMOTE_STORAGE_URL}}">
+   SSLProxyEngine on
+   ProxySet connectiontimeout=5 enablereuse=on keepalive=on retry=0 timeout=30 ttl=300
+ </Proxy>
+
+</VirtualHost>

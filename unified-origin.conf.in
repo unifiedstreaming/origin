@@ -10,22 +10,25 @@ LogFormat {{LOG_FORMAT}} log_format
   Require all granted
 </Directory>
 
+  # Frontend virtualhost for streaming from location filesystem or proxy to the second vhost
+  # Both locations can passed through the manifest-edit tool by using query parameter ?pipeline=
 <VirtualHost *:80>
   ServerName unified-origin
 
   AddHandler smooth-streaming.extensions .ism .isml .mp4
+  SSLProxyEngine on
 
+  # Location for streaming local server manifests
   <Location "/">
     UspHandleIsm on
     UspEnableSubreq on
   </Location>
 
-
+  # Location for streaming remote manifests via port 81 vhost
   <Location "/{{REMOTE_PATH}}/">
-    ProxyPass http://localhost:81/
-    ProxyPassReverse http://localhost:81/
+    ProxyPass http://0.0.0.0:81/
+    ProxyPassReverse http://0.0.0.0:81/
   </Location>
-
 
   CustomLog /dev/stdout log_format
   ErrorLog /dev/stderr
@@ -41,6 +44,10 @@ LogFormat {{LOG_FORMAT}} log_format
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Expose-Headers "Server,range"
 
+
+  # Manifest edit configuration starts here.
+  # Changes can be made to client manifest when the server manifest is located on either local or remote location.
+  # To ensure sucessfull playback use a public ip and not localhost as this may cause issue in specific players.
 
   AddOutputFilterByType SUBSTITUTE application/dash+xml
   Substitute "s@(initialization|media)=\"(.*):@$1=\"\./$2:@"
@@ -76,8 +83,6 @@ LogFormat {{LOG_FORMAT}} log_format
   ExtFilterDefine ef_utc_change                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCChange}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_remove                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCRemove}${ManifestEditCmdPost}"
 
-# Manifest edit can now be invoked on both local and remote manifests successfully.
-# To ensure value playback use a public ip and not localhost as this may cause issue in specific players.
   <LocationMatch ".*\.[is]sm[l]?/\.mpd$">
     <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_order/">
         SetOutputFilter ef_adaptation_sets_order
@@ -142,28 +147,3 @@ LogFormat {{LOG_FORMAT}} log_format
   </LocationMatch>
 
  </VirtualHost>
-
-
- <VirtualHost *:81>
-  ServerName unified-origin-backend
-
-  CustomLog /dev/stdout log_format
-  ErrorLog /dev/stderr
-
-  LogLevel {{LOG_LEVEL}} rewrite:trace6
-
-  <Location "/">
-    UspHandleIsm on
-    UspEnableSubreq on
-  </Location>
-
-  <Location "/">
-     IsmProxyPass {{REMOTE_STORAGE_URL}}
-  </Location>
-
-  <Proxy "{{REMOTE_STORAGE_URL}}">
-    SSLProxyEngine on
-    ProxySet connectiontimeout=5 enablereuse=on keepalive=on retry=0 timeout=30 ttl=300
-  </Proxy>
-
-</VirtualHost>
