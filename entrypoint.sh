@@ -17,11 +17,6 @@ if [ -z "$REMOTE_PATH" ]
   export REMOTE_PATH=remote
 fi
 
-if [ -z "$REMOTE_PATH" ]
-  then
-  export REMOTE_PATH=remote
-fi
-
 # validate required variables are set
 if [ -z "$USP_LICENSE_KEY" ]
   then

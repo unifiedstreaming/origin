@@ -149,7 +149,6 @@ LogFormat {{LOG_FORMAT}} log_format
 
     <If "%{QUERY_STRING} =~ /pipeline=my_use_case/">
         {{MY_USE_CASE}}
-        #SetOutputFilter ef_my_use_case
         ExtFilterOptions LogStdErr Onfail=abort
     </If>
 
