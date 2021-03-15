@@ -36,6 +36,7 @@ LogFormat {{LOG_FORMAT}} log_format
   LogLevel {{LOG_LEVEL}}
 
   AddHandler smooth-streaming.extensions .ism .isml .mp4
+  SSLProxyEngine on
 
   DocumentRoot /var/www/unified-origin
 

@@ -2,7 +2,11 @@ FROM alpine:3.12
 LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
 
 # Install packages
+<<<<<<< HEAD
 RUN apk --update add apache2 apache2-proxy apache2-ssl python3 py3-pip \
+=======
+RUN apk --update add apache2 apache2-proxy apache2-ssl \
+>>>>>>> master
  && rm -f /var/cache/apk/*
 
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
