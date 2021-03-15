@@ -34,7 +34,7 @@ docker run \
   -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
   -e LOG_LEVEL=debug \
   -p 1080:80 \
-  unifiedstreaming/origin:1.10.28
+  unifiedstreaming/origin:1.10.28-manifest-edit
 ```
 
 Tutorial
@@ -73,15 +73,19 @@ Manifest Edit customized pipeline
 
 If you want to experiment creating your own pipeline, the suggested way to
 do so is to mount in the docker image the provided `my_use_case.yaml` file
-using the additional docker run options
+using additional docker run options (see the following example):
 
 ```bash
 docker run \
-  <...> \
+  -e USP_LICENSE_KEY=<license_key> \
+  -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
+  -e LOG_LEVEL=debug \
   -v "$(pwd)"/my_use_case.yaml:/usr/share/manifest-edit/my_use_case.yaml \
   -e MY_USE_CASE=my_use_case \
-  <...>
+  -p 1080:80 \
+  unifiedstreaming/origin:1.10.28-manifest-edit
 ```
+
 You can now edit the `my_use_case.yaml` local file based on your needs. Refer
 to individual plugins documentation for instructions on how to do so. Any
 saved change will be immediately available: the corresponding pipeline can be
