@@ -70,7 +70,7 @@ LogFormat {{LOG_FORMAT}} log_format
   Define PipelineConfUTCAdd                             "${ManifestEditConfDir}/utc_add.yaml"
   Define PipelineConfUTCChange                          "${ManifestEditConfDir}/utc_change.yaml"
   Define PipelineConfUTCRemove                          "${ManifestEditConfDir}/utc_remove.yaml"
-  Define PipelineConfMyUseCase                          "${ManifestEditConfDir}/my_use_case.yaml"
+  Define PipelineConfMyUseCase                          "${ManifestEditConfDir}/{{MY_USE_CASE}}.yaml"
 
   ExtFilterDefine ef_adaptation_sets_order                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsOrder}${ManifestEditCmdPost}"
   ExtFilterDefine ef_adaptation_sets_removal               mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsRemoval}${ManifestEditCmdPost}"
@@ -84,7 +84,7 @@ LogFormat {{LOG_FORMAT}} log_format
   ExtFilterDefine ef_utc_add                               mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_change                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCChange}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_remove                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCRemove}${ManifestEditCmdPost}"
-  ExtFilterDefine ef_my_use_case                           mode=output cmd="${ManifestEditCmdPre}${PipelineConfMyUseCase}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_{{MY_USE_CASE}}                       mode=output cmd="${ManifestEditCmdPre}${PipelineConfMyUseCase}${ManifestEditCmdPost}"
 
   <LocationMatch ".*\.[is]sm[l]?/\.mpd$">
     <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_order/">
@@ -147,8 +147,8 @@ LogFormat {{LOG_FORMAT}} log_format
         ExtFilterOptions LogStdErr Onfail=abort
     </If>
 
-    <If "%{QUERY_STRING} =~ /pipeline=my_use_case/">
-        {{MY_USE_CASE}}
+    <If "%{QUERY_STRING} =~ /pipeline={{MY_USE_CASE}}/">
+        {{MY_USE_CASE_FILTER_LINE}}
         ExtFilterOptions LogStdErr Onfail=abort
     </If>
 
