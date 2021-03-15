@@ -17,11 +17,25 @@ if [ -z "$REMOTE_PATH" ]
   export REMOTE_PATH=remote
 fi
 
+if [ -z "$REMOTE_PATH" ]
+  then
+  export REMOTE_PATH=remote
+fi
+
 # validate required variables are set
 if [ -z "$USP_LICENSE_KEY" ]
   then
   echo >&2 "Error: USP_LICENSE_KEY environment variable is required but not set."
   exit 1
+fi
+
+# test if custom manifest edit pipeline has been set and corresponding
+# configuration file has been mounted at the right location
+if [ $MY_USE_CASE ] && [ -f "/usr/share/manifest-edit/$MY_USE_CASE.yaml" ]
+  then
+    export MY_USE_CASE="SetOutputFilter ef_${MY_USE_CASE}"
+  else
+    export MY_USE_CASE=" "
 fi
 
 # set remote path
@@ -52,6 +66,9 @@ if [ $TRANSCODE_PATH ] && [ $TRANSCODE_URL ]
   then
   /bin/sed "s@{{TRANSCODE_PATH}}@${TRANSCODE_PATH}@g; s@{{TRANSCODE_URL}}@${TRANSCODE_URL}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/transcode.conf.in > /etc/apache2/conf.d/transcode.conf
 fi
+
+# my_use_case
+/bin/sed -i "s@{{MY_USE_CASE}}@${MY_USE_CASE}@g" /etc/apache2/conf.d/unified-origin.conf
 
 
 # USP license

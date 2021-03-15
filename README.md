@@ -40,3 +40,51 @@ docker run \
 Tutorial
 --------
 A full tutorial is available at <http://docs.unified-streaming.com/installation/evaluation.html>
+
+Manifest Edit functionality and default pipelines
+---------------------------------------------------
+
+This Origin image includes the "Manifest Edit" functionality, allowing you to
+test the use cases included "out-of-the-box" in our Plugins Library, which
+are documented in the Use Cases doc page 
+<https://docs.unified-streaming.com/documentation/manifest-edit/use_cases/index.html>.
+
+You can enable each use case by adding to any `/.mpd` url a query parameter
+passing a pipeline name, which will generate an "edited" manifest.
+The available pipelines are:
+
+- `?pipeline=adaptation_sets_order`
+- `?pipeline=adaptation_sets_removal`
+- `?pipeline=adaptation_sets_representations_order`
+- `?pipeline=adaptation_sets_switching`
+- `?pipeline=low_latency`
+- `?pipeline=low_latency_with_essential_property`
+- `?pipeline=representations_order`
+- `?pipeline=representations_removal`
+- `?pipeline=supplemental_property_add`
+- `?pipeline=utc_add`
+- `?pipeline=utc_change`
+- `?pipeline=utc_remove`
+
+These pre-configured use cases may or may not apply at all to your content.
+
+Manifest Edit customized pipeline
+---------------------------------
+
+If you want to experiment creating your own pipeline, the suggested way to
+do so is to mount in the docker image the provided `my_use_case.yaml` file
+using the additional docker run options
+
+```bash
+docker run \
+  <...> \
+  -v "$(pwd)"/my_use_case.yaml:/usr/share/manifest-edit/my_use_case.yaml \
+  -e MY_USE_CASE=my_use_case \
+  <...>
+```
+You can now edit the `my_use_case.yaml` local file based on your needs. Refer
+to individual plugins documentation for instructions on how to do so. Any
+saved change will be immediately available: the corresponding pipeline can be
+invoked with the query parameter
+
+- `?pipeline=my_use_case`
