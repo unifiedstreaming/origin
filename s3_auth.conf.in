@@ -1,8 +1,16 @@
 # Proxy location and timeout parameters for apache workers when using UspEnableSubreq
-<Proxy "{{REMOTE_STORAGE_URL}}">
-    S3AccessKey {{S3_ACCESS_KEY}}
-    S3SecretKey {{S3_SECRET_KEY}}
-    {{S3_REGION}}
+<Proxy "{{REMOTE_STORAGE_URL_A}}">
+    S3AccessKey {{S3_ACCESS_KEY_A}}
+    S3SecretKey {{S3_SECRET_KEY_A}}
+    S3Region {{S3_REGION_A}}
     S3UseHeaders on
-    ProxySet connectiontimeout=5 enablereuse=on keepalive=on retry=0 timeout=30 ttl=300
+    ProxySet connectiontimeout=5 timeout=5 ttl=300 keepalive=on retry=0 timeout=5 ttl=300
+</Proxy>
+
+<Proxy "{{REMOTE_STORAGE_URL_B}}">
+    S3AccessKey {{S3_ACCESS_KEY_B}}
+    S3SecretKey {{S3_SECRET_KEY_B}}
+    S3Region {{S3_REGION_B}}
+    S3UseHeaders on
+    ProxySet connectiontimeout=5 timeout=5 ttl=300 keepalive=on retry=0 timeout=5 ttl=300
 </Proxy>

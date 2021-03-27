@@ -29,12 +29,19 @@ Example
 A simple example, running locally on port 1080 with remote storage in S3 and debug logging:
 
 ```bash
-docker run \
-  -e USP_LICENSE_KEY=<license_key> \
-  -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
+docker run --rm \
+  --name foo \
+  -e USP_LICENSE_KEY \
+  -e REMOTE_PATH=s3-europe \
+  -e REMOTE_STORAGE_URL_A=http://mybucket.s3.eu-west-1.amazonaws.com/ \
+  -e S3_ACCESS_KEY_A=<REDACTED> \
+  -e S3_SECRET_KEY_A=<REDACTED> \
+  -e REMOTE_STORAGE_URL_B=http://mybucket.s3.eu-central-1.amazonaws.com/ \
+  -e S3_ACCESS_KEY_B=<REDACTED> \
+  -e S3_SECRET_KEY_B=<REDACTED> \
   -e LOG_LEVEL=debug \
-  -p 1080:80 \
-  unifiedstreaming/origin:1.10.28
+  -p 80:80 \
+  unifiedstreaming/origin:storagelb
 ```
 
 Tutorial

@@ -31,21 +31,31 @@ if [ $REMOTE_PATH ]
 fi
 
 # remote storage
-if [ $REMOTE_STORAGE_URL ]
+# To remove preview and set at url
+# sed -E 's_^(https|http)?://__'
+if [ $REMOTE_STORAGE_URL_A -a $REMOTE_STORAGE_URL_B ]
   then
-  /bin/sed "s@{{LOG_LEVEL}}@${LOG_LEVEL}@g; s@{{LOG_FORMAT}}@'${LOG_FORMAT}'@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
+  REMOTE_STORAGE_LOCATION_A=$(echo $REMOTE_STORAGE_URL_A | sed -E 's_^(https|http)?://__');
+  REMOTE_STORAGE_LOCATION_B=$(echo $REMOTE_STORAGE_URL_B | sed -E 's_^(https|http)?://__');
+  /bin/sed "s@{{LOG_LEVEL}}@${LOG_LEVEL}@g; s@{{LOG_FORMAT}}@'${LOG_FORMAT}'@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g" /etc/apache2/conf.d/unified-origin.conf.in > /etc/apache2/conf.d/unified-origin.conf;
+  /bin/sed "s@{{LOG_LEVEL}}@${LOG_LEVEL}@g; s@{{LOG_FORMAT}}@'${LOG_FORMAT}'@g; s@{{REMOTE_STORAGE_URL_A}}@${REMOTE_STORAGE_URL_A}@g; s@{{REMOTE_STORAGE_URL_B}}@${REMOTE_STORAGE_URL_B}@g; s@{{REMOTE_STORAGE_LOCATION_A}}@${REMOTE_STORAGE_LOCATION_A}@g; s@{{REMOTE_STORAGE_LOCATION_B}}@${REMOTE_STORAGE_LOCATION_B}@g" /etc/apache2/conf.d/remote_storage.conf.in > /etc/apache2/conf.d/remote_storage.conf
+  else
+  echo >&2 "Please set url's for both REMOTE_STORAGE_URL_A anf REMOTE_STORAGE_URL_B"
+  exit 1
 fi
 
+
 # s3 auth
-if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ $S3_REGION ]
+if [ $S3_ACCESS_KEY_A  -a $S3_SECRET_KEY_A -a $S3_ACCESS_KEY_B  -a $S3_SECRET_KEY_B ]
   then
-  S3_REGION="S3Region ${S3_REGION}"
-  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{S3_ACCESS_KEY}}@${S3_ACCESS_KEY}@g; s@{{S3_SECRET_KEY}}@${S3_SECRET_KEY}@g; s@{{S3_REGION}}@${S3_REGION}@g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
+  S3_REGION_A=$(echo $REMOTE_STORAGE_URL_A | awk -F "." '{print $3}');
+  S3_REGION_B=$(echo $REMOTE_STORAGE_URL_B | awk -F "." '{print $3}');
+  /bin/sed "s@{{REMOTE_STORAGE_URL_A}}@${REMOTE_STORAGE_URL_A}@g; s@{{REMOTE_STORAGE_URL_B}}@${REMOTE_STORAGE_URL_B}@g; s@{{S3_ACCESS_KEY_A}}@${S3_ACCESS_KEY_A}@g; s@{{S3_SECRET_KEY_A}}@${S3_SECRET_KEY_A}@g; s@{{S3_REGION_A}}@${S3_REGION_A}@g; s@{{S3_ACCESS_KEY_B}}@${S3_ACCESS_KEY_B}@g; s@{{S3_SECRET_KEY_B}}@${S3_SECRET_KEY_B}@g; s@{{S3_REGION_B}}@${S3_REGION_B}@g;" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
+  else 
+  echo >&2 "Please set ACCESS_KEY & SECRET_KEY for both REMOTE_STORAGE's "
+  exit 1
 fi
-if [ $S3_ACCESS_KEY ] && [ $S3_SECRET_KEY ] && [ -z $S3_REGION ]
-  then
-  /bin/sed "s@{{REMOTE_STORAGE_URL}}@${REMOTE_STORAGE_URL}@g; s@{{REMOTE_PATH}}@${REMOTE_PATH}@g; s@{{S3_ACCESS_KEY}}@${S3_ACCESS_KEY}@g; s@{{S3_SECRET_KEY}}@${S3_SECRET_KEY}@g; s@{{S3_REGION}}@@g" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
-fi
+
 
 # transcode
 if [ $TRANSCODE_PATH ] && [ $TRANSCODE_URL ]

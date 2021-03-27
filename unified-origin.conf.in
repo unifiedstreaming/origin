@@ -1,4 +1,5 @@
 LoadModule smooth_streaming_module modules/mod_smooth_streaming.so
+LoadModule unified_s3_auth_module modules/mod_unified_s3_auth.so
 
 
 UspLicenseKey /etc/usp-license.key
