@@ -9,7 +9,7 @@ request load-balancing across multiple HTTP(S) based storage endpoints (S3 bucke
 
 This project supports both HTTP(S), S3-Auth and Manifest-Edit.
 
-Apache's [mod_proxy_hcheck](https://httpd.apache.org/docs/2.4/mod/mod_proxy_hcheck.html) has been configured to regularly (30s) validate the health of the available endpoint by requesting the Tears-of-Steel server-manifest using the following configuration parameter `hcuri=/tears-of-steel/tears-of-steel.ism`.
+Apache's [mod_proxy_hcheck](https://httpd.apache.org/docs/2.4/mod/mod_proxy_hcheck.html) has been configured to regularly (30s) validate the health of the available endpoint by requesting the file configured as the `HEALTH_CHECK` variable.
 
 Should the health-check failed due to timeout or permissions issues, the relevant endpoint will automatically be disabled allowing for all further requests to be automatically routed to the healthy endpoint.
 
@@ -102,7 +102,8 @@ Available variables are:
 |----------------|--------|----------|
 |USP_LICENSE_KEY |Your license key. To evaluate the software you can create an account at <https://private.unified-streaming.com/register/>|Yes|
 |REMOTE_STORAGE_URL_A|Set a BalanceMember and Proxy Directory to this host in remote_storage.conf|Yes|
-REMOTE_STORAGE_URL_B|Set a BalanceMember and Proxy Directory to this host in remote_storage.conf|Yes|
+|REMOTE_STORAGE_URL_B|Set a BalanceMember and Proxy Directory to this host in remote_storage.conf|Yes|
+|HEALTH_CHECK|Set to the location of a file to be used for checking access to the storage |Yes|
 |REMOTE_PATH|Set the path to be used for remote storage, defaults to "remote"|No|
 |S3_SECRET_KEY_A|If using S3 remote storage sets the secret key for authentication|No|
 |S3_ACCESS_KEY_A|If using S3 remote storage sets the access key for authentication|No|
@@ -132,6 +133,7 @@ docker run --rm \
   -e REMOTE_STORAGE_URL_B=http://mybucket.s3.eu-central-1.amazonaws.com/ \
   -e S3_ACCESS_KEY_B=<REDACTED> \
   -e S3_SECRET_KEY_B=<REDACTED> \
+  -e HEALTH_CHECK=/tears-of-steel/tears-of-steel.ism \
   -e LOG_LEVEL=debug \
   -p 1080:80 \
   origin:storagelb
