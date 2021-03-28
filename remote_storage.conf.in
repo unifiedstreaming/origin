@@ -23,9 +23,9 @@
    ProxySet lbmethod=bybusyness failonstatus=403 failontimeout=On forcerecovery=Off nofailover=Off
 
    # Primary 2 Node Cluster
-   BalancerMember "http://localhost:81/{{REMOTE_STORAGE_LOCATION_A}}" connectiontimeout=5 timeout=5 ttl=300 keepalive=on retry=60  hcmethod=GET hcuri=/tears-of-steel/tears-of-steel.ism hcinterval=60 hcpasses=1 hcfails=1
-   BalancerMember "http://localhost:81/{{REMOTE_STORAGE_LOCATION_B}}" connectiontimeout=5 timeout=5 ttl=300 keepalive=on retry=60 hcmethod=GET  hcuri=/tears-of-steel/tears-of-steel.ism hcinterval=60 hcpasses=1 hcfails=1
-   
+   BalancerMember "http://localhost:81/{{REMOTE_STORAGE_LOCATION_A}}" connectiontimeout=5 timeout=5 ttl=300 keepalive=on retry=60  hcmethod=GET hcuri=/tears-of-steel/tears-of-steel.ism hcinterval=30 hcpasses=1 hcfails=1
+   BalancerMember "http://localhost:81/{{REMOTE_STORAGE_LOCATION_B}}" connectiontimeout=5 timeout=5 ttl=300 keepalive=on retry=60 hcmethod=GET  hcuri=/tears-of-steel/tears-of-steel.ism hcinterval=30 hcpasses=1 hcfails=1
+
  </Proxy>
 
  # Enable For Balancer Monitoring UI
