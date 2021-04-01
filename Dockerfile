@@ -39,10 +39,6 @@ RUN mkdir -p /run/apache2 \
   && ln -s /dev/stderr /var/log/apache2/error.log \
   && ln -s /dev/stdout /var/log/apache2/access.log \
   && mkdir -p /var/www/unified-origin
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 
 COPY httpd.conf /etc/apache2/httpd.conf
 COPY unified-origin.conf.in /etc/apache2/conf.d/unified-origin.conf.in
