@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
 
 ARG ALPINEVERSION=3.13
@@ -11,6 +12,20 @@ ARG BETA_REPO=https://beta.apk.unified-streaming.com/alpine/
 ARG STABLE_REPO=https://stable.apk.unified-streaming.com/alpine/
 ARG VERSION=1.11.0
 
+=======
+ARG ALPINEVERSION=3.13
+
+FROM alpine:$ALPINEVERSION
+LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
+
+# ARGs declared before FROM are in a different scope, so need to be stated again
+# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
+ARG ALPINEVERSION
+ARG BETA_REPO=https://beta.apk.unified-streaming.com/alpine/
+ARG STABLE_REPO=https://stable.apk.unified-streaming.com/alpine/
+ARG VERSION=1.11.0
+
+>>>>>>> master
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
     https://stable.apk.unified-streaming.com/alpine@unified-streaming.com.rsa.pub
@@ -40,6 +55,10 @@ RUN mkdir -p /run/apache2 \
     && ln -s /dev/stderr /var/log/apache2/error.log \
     && ln -s /dev/stdout /var/log/apache2/access.log \
     && mkdir -p /var/www/unified-origin
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 
 COPY httpd.conf /etc/apache2/httpd.conf
 COPY unified-origin.conf.in /etc/apache2/conf.d/unified-origin.conf.in
