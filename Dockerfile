@@ -1,8 +1,7 @@
-LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
-
 ARG ALPINEVERSION=3.13
 
 FROM alpine:$ALPINEVERSION
+LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
 
 # ARGs declared before FROM are in a different scope, so need to be stated again
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
