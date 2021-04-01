@@ -1,10 +1,10 @@
-- mpd:
-  - manifest_edit.plugins.supplemental_property_add:
-      periods:
-        - '*' : '.*'
-          adaptationSets:
-            - contentType :  "video"
-              representations:
-                - '*' : '.*'
-                  supplementalPropertyName :      "MyCustomName"
-                  supplementalPropertyValue:      "MyCustomValue"
+mpd:
+- manifest_edit.plugins.supplemental_property_add:
+    periods:
+      - '*' : '.*'
+        adaptationSets:
+          - contentType :  "video"
+            representations:
+              - '*' : '.*'
+                supplementalPropertyName :      "MyCustomName"
+                supplementalPropertyValue:      "MyCustomValue"
