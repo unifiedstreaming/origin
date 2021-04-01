@@ -1,3 +1,5 @@
+LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
+
 ARG ALPINEVERSION=3.13
 
 FROM alpine:$ALPINEVERSION
