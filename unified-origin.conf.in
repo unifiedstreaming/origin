@@ -58,18 +58,20 @@ LogFormat {{LOG_FORMAT}} log_format
   Define ManifestEditCmdPre "${ManifestEditExe} --license_key=${UspLicenseFile} -v 2 -o stdout: --python_pipeline_config="
   Define ManifestEditCmdPost " stdin:"
 
-  Define PipelineConfAdaptationSetsOrder                "${ManifestEditConfDir}/adaptation_sets_order.yaml"
-  Define PipelineConfAdaptationSetsRemoval              "${ManifestEditConfDir}/adaptation_sets_removal.yaml"
-  Define PipelineConfAdaptationSetsRepresentationsOrder "${ManifestEditConfDir}/adaptation_sets_representations_order.yaml"
-  Define PipelineConfAdaptationSetsSwitching            "${ManifestEditConfDir}/adaptation_sets_switching.yaml"
-  Define PipelineConfLowLatency                         "${ManifestEditConfDir}/low_latency.yaml"
-  Define PipelineConfLowLatencyWithEssentialProperty    "${ManifestEditConfDir}/low_latency_with_essential_property.yaml"
-  Define PipelineConfRepresentationsOrder               "${ManifestEditConfDir}/representations_order.yaml"
-  Define PipelineConfRepresentationsRemoval             "${ManifestEditConfDir}/representations_removal.yaml"
-  Define PipelineConfSupplementalPropertyAdd            "${ManifestEditConfDir}/supplemental_property_add.yaml"
-  Define PipelineConfUTCAdd                             "${ManifestEditConfDir}/utc_add.yaml"
-  Define PipelineConfUTCChange                          "${ManifestEditConfDir}/utc_change.yaml"
-  Define PipelineConfUTCRemove                          "${ManifestEditConfDir}/utc_remove.yaml"
+  Define PipelineConfAdaptationSetsOrder                "${ManifestEditConfDir}/mpd/adaptation_sets_order.yaml"
+  Define PipelineConfAdaptationSetsRemoval              "${ManifestEditConfDir}/mpd/adaptation_sets_removal.yaml"
+  Define PipelineConfAdaptationSetsRepresentationsOrder "${ManifestEditConfDir}/mpd/adaptation_sets_representations_order.yaml"
+  Define PipelineConfAdaptationSetsSwitching            "${ManifestEditConfDir}/mpd/adaptation_sets_switching.yaml"
+  Define PipelineConfLowLatency                         "${ManifestEditConfDir}/mpd/low_latency.yaml"
+  Define PipelineConfLowLatencyWithEssentialProperty    "${ManifestEditConfDir}/mpd/low_latency_with_essential_property.yaml"
+  Define PipelineConfRepresentationsOrder               "${ManifestEditConfDir}/mpd/representations_order.yaml"
+  Define PipelineConfRepresentationsRemoval             "${ManifestEditConfDir}/mpd/representations_removal.yaml"
+  Define PipelineConfSupplementalPropertyAdd            "${ManifestEditConfDir}/mpd/supplemental_property_add.yaml"
+  Define PipelineConfUTCAdd                             "${ManifestEditConfDir}/mpd/utc_add.yaml"
+  Define PipelineConfUTCChange                          "${ManifestEditConfDir}/mpd/utc_change.yaml"
+  Define PipelineConfUTCRemove                          "${ManifestEditConfDir}/mpd/utc_remove.yaml"
+  Define PipelineDefaultAudioLanguage                   "${ManifestEditConfDir}/m3u8/default_audio_language.yaml"
+  Define PipelineDefaultSubsLanguage                    "${ManifestEditConfDir}/m3u8/default_subs_language.yaml"
   Define PipelineConfMyUseCase                          "${ManifestEditConfDir}/{{MY_USE_CASE}}.yaml"
 
   ExtFilterDefine ef_adaptation_sets_order                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsOrder}${ManifestEditCmdPost}"
@@ -84,6 +86,8 @@ LogFormat {{LOG_FORMAT}} log_format
   ExtFilterDefine ef_utc_add                               mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_change                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCChange}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_remove                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCRemove}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_default_audio_language                mode=output cmd="${ManifestEditCmdPre}${PipelineDefaultAudioLanguage}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_default_subs_language                 mode=output cmd="${ManifestEditCmdPre}${PipelineDefaultSubsLanguage}${ManifestEditCmdPost}"
   ExtFilterDefine ef_{{MY_USE_CASE}}                       mode=output cmd="${ManifestEditCmdPre}${PipelineConfMyUseCase}${ManifestEditCmdPost}"
 
   <LocationMatch ".*\.[is]sm[l]?/\.mpd$">
@@ -152,6 +156,18 @@ LogFormat {{LOG_FORMAT}} log_format
         ExtFilterOptions LogStdErr Onfail=abort
     </If>
 
+  </LocationMatch>
+
+  <LocationMatch ".*\.[is]sm[l]?/\.m3u8$">
+    <If "%{QUERY_STRING} =~ /pipeline=default_audio_language/">
+        SetOutputFilter ef_default_audio_language
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=default_subs_language/">
+        SetOutputFilter ef_default_subs_language
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
   </LocationMatch>
 
  </VirtualHost>

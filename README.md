@@ -49,9 +49,9 @@ test the use cases included "out-of-the-box" in our Plugins Library, which
 are documented in the Use Cases doc page 
 <https://docs.unified-streaming.com/documentation/manifest-edit/use_cases/index.html>.
 
-You can enable each use case by adding to any `/.mpd` url a query parameter
-passing a pipeline name, which will generate an "edited" manifest.
-The available pipelines are:
+You can enable each use case by adding to any `/.mpd` or `/.m3u8` url a query
+parameter passing a pipeline name, which will generate an "edited" manifest.
+The available pipelines for `/.mpd` urls are:
 
 - `?pipeline=adaptation_sets_order`
 - `?pipeline=adaptation_sets_removal`
@@ -66,7 +66,17 @@ The available pipelines are:
 - `?pipeline=utc_change`
 - `?pipeline=utc_remove`
 
-These pre-configured use cases may or may not apply at all to your content.
+The available pipelines for `/.m3u8` urls are:
+
+- `?pipeline=default_audio_language`
+
+These pre-configured use cases are using some defaults that may or may not
+apply at all to your content!
+I.e. the `default_audio_language` sets English as the default audio track. If
+that is already the default track in your original manifest, you will notice
+no visible changes in the edited manifest. In that case, either edit the
+configuration files present in the `/usr/share/manifest-edit` folder of the
+docker image, or read next chapter to use your custom configuration file.
 
 Manifest Edit customized pipeline
 ---------------------------------
