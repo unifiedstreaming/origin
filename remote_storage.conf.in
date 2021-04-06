@@ -8,6 +8,8 @@
 
  LogLevel {{LOG_LEVEL}}
 
+ SSLProxyEngine on
+
 <Location "/">
    UspHandleIsm on
    UspEnableSubreq on

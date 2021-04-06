@@ -10,7 +10,7 @@ fi
 
 if [ -z "$LOG_FORMAT" ]
   then
-  export LOG_FORMAT="%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" %D"
+  export LOG_FORMAT="%h %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-agent}i\" \"%{BALANCER_WORKER_NAME}e\""
 fi
 
 if [ -z "$REMOTE_PATH" ]
@@ -49,8 +49,8 @@ fi
 # s3 auth
 if [ "$S3_ACCESS_KEY_A" ] && [ "$S3_SECRET_KEY_A" ] && [ "$S3_ACCESS_KEY_B" ] && [ "$S3_SECRET_KEY_B" ]
   then
-    S3_REGION_A=$(echo $REMOTE_STORAGE_URL_A | awk -F "." '{print $3}');
-    S3_REGION_B=$(echo $REMOTE_STORAGE_URL_B | awk -F "." '{print $3}');
+    S3_REGION_A=$(echo $REMOTE_STORAGE_URL_A | awk -F "." '{print $2}' | grep -oP '(?<=s3-).*');
+    S3_REGION_B=$(echo $REMOTE_STORAGE_URL_B | awk -F "." '{print $2}' | grep -oP '(?<=s3-).*');
     /bin/sed "s@{{REMOTE_STORAGE_URL_A}}@${REMOTE_STORAGE_URL_A}@g; s@{{REMOTE_STORAGE_URL_B}}@${REMOTE_STORAGE_URL_B}@g; s@{{S3_ACCESS_KEY_A}}@${S3_ACCESS_KEY_A}@g; s@{{S3_SECRET_KEY_A}}@${S3_SECRET_KEY_A}@g; s@{{S3_REGION_A}}@${S3_REGION_A}@g; s@{{S3_ACCESS_KEY_B}}@${S3_ACCESS_KEY_B}@g; s@{{S3_SECRET_KEY_B}}@${S3_SECRET_KEY_B}@g; s@{{S3_REGION_B}}@${S3_REGION_B}@g;" /etc/apache2/conf.d/s3_auth.conf.in > /etc/apache2/conf.d/s3_auth.conf
   elif [ "$S3_ACCESS_KEY_A" ] && [ "$S3_SECRET_KEY_A" ] && [ -z "$S3_ACCESS_KEY_B" ] && [ -z "$S3_SECRET_KEY_B" ];
   then

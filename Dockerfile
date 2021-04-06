@@ -29,6 +29,7 @@ RUN apk \
         manifest-edit~$VERSION \
         python3 \
         py3-pip \
+        grep \
 &&  pip3 install \
         pyyaml==5.3.1 \
         schema==0.7.3 \
