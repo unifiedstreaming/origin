@@ -18,7 +18,7 @@ if [ -z "$REMOTE_PATH" ]
 fi
 
 # validate required variables are set
-if [ -z "$USP_LICENSE_KEY" ]
+if [ -z "$UspLicenseKey" ]
   then
   echo >&2 "Error: USP_LICENSE_KEY environment variable is required but not set."
   exit 1
@@ -53,7 +53,7 @@ fi
 
 
 # USP license
-echo $USP_LICENSE_KEY > /etc/usp-license.key
+echo $UspLicenseKey > /etc/usp-license.key
 
 rm -f /run/apache2/httpd.pid
 
