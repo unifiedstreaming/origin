@@ -18,10 +18,13 @@ if [ -z "$REMOTE_PATH" ]
 fi
 
 # validate required variables are set
-if [ -z "$UspLicenseKey" ]
+if [ -z "$UspLicenseKey" ] && [ -z "$USP_LICENSE_KEY" ]
   then
-  echo >&2 "Error: UspLicenseKey environment variable is required but not set."
-  exit 1
+    echo >&2 "Error: UspLicenseKey environment variable is required but not set."
+    exit 1
+elif [ -z "$UspLicenseKey" ]
+  then
+    export UspLicenseKey=${USP_LICENSE_KEY}
 fi
 
 # update configuration based on env vars
