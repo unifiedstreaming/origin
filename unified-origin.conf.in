@@ -1,4 +1,8 @@
 LoadModule smooth_streaming_module modules/mod_smooth_streaming.so
+LoadModule unified_s3_auth_module modules/mod_unified_s3_auth.so
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+
 AddHandler smooth-streaming.extensions .ism .isml
 
 ServerName unified-origin
