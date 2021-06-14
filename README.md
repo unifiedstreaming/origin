@@ -14,7 +14,7 @@ Available variables are:
 
 |Variable        |Usage   |Mandatory?|
 |----------------|--------|----------|
-|USP_LICENSE_KEY |Your license key. To evaluate the software you can create an account at <https://private.unified-streaming.com/register/>|Yes|
+|UspLicenseKey |Your license key. To evaluate the software you can create an account at <https://private.unified-streaming.com/register/>|Yes|
 |REMOTE_STORAGE_URL|Set an IsmProxyPass to this URL at <http://<container\>/<REMOTE_PATH\>>|No|
 |REMOTE_PATH|Set the path to be used for remote storage, defaults to "remote"|No|
 |S3_SECRET_KEY|If using S3 remote storage sets the secret key for authentication|No|
