@@ -30,7 +30,7 @@ A simple example, running locally on port 1080 with remote storage in S3 and deb
 
 ```bash
 docker run \
-  -e USP_LICENSE_KEY=<license_key> \
+  -e UspLicenseKey=<license_key> \
   -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
   -e LOG_LEVEL=debug \
   -p 1080:80 \

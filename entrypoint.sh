@@ -20,7 +20,7 @@ fi
 # validate required variables are set
 if [ -z "$UspLicenseKey" ]
   then
-  echo >&2 "Error: USP_LICENSE_KEY environment variable is required but not set."
+  echo >&2 "Error: UspLicenseKey environment variable is required but not set."
   exit 1
 fi
 
