@@ -1,5 +1,5 @@
 mpd:
-- manifest_edit.plugins.supplemental_property_add:
+- manifest_edit.plugins.mpd.supplemental_property_add:
     periods:
       - '*' : '.*'
         adaptationSets:

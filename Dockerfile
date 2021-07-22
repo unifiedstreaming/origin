@@ -1,4 +1,4 @@
-ARG ALPINEVERSION=3.13
+ARG ALPINEVERSION=3.14
 
 FROM alpine:$ALPINEVERSION
 LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
@@ -8,7 +8,7 @@ LABEL maintainer "Unified Streaming <support@unified-streaming.com>"
 ARG ALPINEVERSION
 ARG BETA_REPO=https://beta.apk.unified-streaming.com/alpine/
 ARG STABLE_REPO=https://stable.apk.unified-streaming.com/alpine/
-ARG VERSION=1.11.1
+ARG VERSION=1.11.4
 
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
