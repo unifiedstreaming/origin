@@ -63,14 +63,19 @@ LogFormat {{LOG_FORMAT}} log_format
   Define ManifestEditCmdPre "${ManifestEditExe} --license_key=${UspLicenseFile} -v 2 -o stdout: --python_pipeline_config="
   Define ManifestEditCmdPost " stdin:"
 
+  Define PipelineConfAccessibilityAdd                   "${ManifestEditConfDir}/mpd/accessibility_add.yaml"
   Define PipelineConfAdaptationSetsOrder                "${ManifestEditConfDir}/mpd/adaptation_sets_order.yaml"
   Define PipelineConfAdaptationSetsRemoval              "${ManifestEditConfDir}/mpd/adaptation_sets_removal.yaml"
   Define PipelineConfAdaptationSetsRepresentationsOrder "${ManifestEditConfDir}/mpd/adaptation_sets_representations_order.yaml"
   Define PipelineConfAdaptationSetsSwitching            "${ManifestEditConfDir}/mpd/adaptation_sets_switching.yaml"
+  Define PipelineConfAudioChannelConfigurationAdd       "${ManifestEditConfDir}/mpd/audiochannelconfiguration_add.yaml"
+  Define PipelineConfEventStreamValueAdd                "${ManifestEditConfDir}/mpd/eventstream_value_add.yaml"
+  Define PipelineConfHardOfHearingAdd                   "${ManifestEditConfDir}/mpd/hard_of_hearing_add.yaml"
   Define PipelineConfLowLatency                         "${ManifestEditConfDir}/mpd/low_latency.yaml"
   Define PipelineConfLowLatencyWithEssentialProperty    "${ManifestEditConfDir}/mpd/low_latency_with_essential_property.yaml"
   Define PipelineConfRepresentationsOrder               "${ManifestEditConfDir}/mpd/representations_order.yaml"
   Define PipelineConfRepresentationsRemoval             "${ManifestEditConfDir}/mpd/representations_removal.yaml"
+  Define PipelineConfRoleAdd                            "${ManifestEditConfDir}/mpd/role_add.yaml"
   Define PipelineConfSupplementalPropertyAdd            "${ManifestEditConfDir}/mpd/supplemental_property_add.yaml"
   Define PipelineConfUTCAdd                             "${ManifestEditConfDir}/mpd/utc_add.yaml"
   Define PipelineConfUTCChange                          "${ManifestEditConfDir}/mpd/utc_change.yaml"
@@ -79,14 +84,19 @@ LogFormat {{LOG_FORMAT}} log_format
   Define PipelineDefaultSubsLanguage                    "${ManifestEditConfDir}/m3u8/default_subs_language.yaml"
   Define PipelineConfMyUseCase                          "${ManifestEditConfDir}/{{MY_USE_CASE}}.yaml"
 
+  ExtFilterDefine ef_accessibility_add                     mode=output cmd="${ManifestEditCmdPre}${PipelineConfAccessibilityAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_adaptation_sets_order                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsOrder}${ManifestEditCmdPost}"
   ExtFilterDefine ef_adaptation_sets_removal               mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsRemoval}${ManifestEditCmdPost}"
   ExtFilterDefine ef_adaptation_sets_representations_order mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsRepresentationsOrder}${ManifestEditCmdPost}"
   ExtFilterDefine ef_adaptation_sets_switching             mode=output cmd="${ManifestEditCmdPre}${PipelineConfAdaptationSetsSwitching}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_audiochannelconfiguration_add         mode=output cmd="${ManifestEditCmdPre}${PipelineConfAudioChannelConfigurationAdd}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_eventstream_value_add                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfEventStreamValueAdd}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_hard_of_hearing_add                   mode=output cmd="${ManifestEditCmdPre}${PipelineConfHardOfHearingAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_low_latency                           mode=output cmd="${ManifestEditCmdPre}${PipelineConfLowLatency}${ManifestEditCmdPost}"
   ExtFilterDefine ef_low_latency_with_essential_property   mode=output cmd="${ManifestEditCmdPre}${PipelineConfLowLatencyWithEssentialProperty}${ManifestEditCmdPost}"
   ExtFilterDefine ef_representations_order                 mode=output cmd="${ManifestEditCmdPre}${PipelineConfRepresentationsOrder}${ManifestEditCmdPost}"
   ExtFilterDefine ef_representations_removal               mode=output cmd="${ManifestEditCmdPre}${PipelineConfRepresentationsRemoval}${ManifestEditCmdPost}"
+  ExtFilterDefine ef_role_add                              mode=output cmd="${ManifestEditCmdPre}${PipelineConfRoleAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_supplemental_property_add             mode=output cmd="${ManifestEditCmdPre}${PipelineConfSupplementalPropertyAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_add                               mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCAdd}${ManifestEditCmdPost}"
   ExtFilterDefine ef_utc_change                            mode=output cmd="${ManifestEditCmdPre}${PipelineConfUTCChange}${ManifestEditCmdPost}"
@@ -96,6 +106,11 @@ LogFormat {{LOG_FORMAT}} log_format
   ExtFilterDefine ef_{{MY_USE_CASE}}                       mode=output cmd="${ManifestEditCmdPre}${PipelineConfMyUseCase}${ManifestEditCmdPost}"
 
   <LocationMatch ".*\.[is]sm[l]?/\.mpd$">
+    <If "%{QUERY_STRING} =~ /pipeline=accessibility_add/">
+        SetOutputFilter ef_accessibility_add
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
     <If "%{QUERY_STRING} =~ /pipeline=adaptation_sets_order/">
         SetOutputFilter ef_adaptation_sets_order
         ExtFilterOptions LogStdErr Onfail=abort
@@ -116,6 +131,21 @@ LogFormat {{LOG_FORMAT}} log_format
         ExtFilterOptions LogStdErr Onfail=abort
     </If>
 
+    <If "%{QUERY_STRING} =~ /pipeline=audiochannelconfiguration_add/">
+        SetOutputFilter ef_audiochannelconfiguration_add
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=eventstream_value_add/">
+        SetOutputFilter ef_eventstream_value_add
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=hard_of_hearing_add/">
+        SetOutputFilter ef_hard_of_hearing_add
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
     <If "%{QUERY_STRING} =~ /pipeline=low_latency/">
         SetOutputFilter ef_low_latency
         ExtFilterOptions LogStdErr Onfail=abort
@@ -133,6 +163,11 @@ LogFormat {{LOG_FORMAT}} log_format
 
     <If "%{QUERY_STRING} =~ /pipeline=representations_removal/">
         SetOutputFilter ef_representations_removal
+        ExtFilterOptions LogStdErr Onfail=abort
+    </If>
+
+    <If "%{QUERY_STRING} =~ /pipeline=role_add/">
+        SetOutputFilter ef_role_add
         ExtFilterOptions LogStdErr Onfail=abort
     </If>
 

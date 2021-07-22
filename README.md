@@ -93,14 +93,19 @@ You can enable each use case by adding to any `/.mpd` or `/.m3u8` url a query
 parameter passing a pipeline name, which will generate an "edited" manifest.
 The available pipelines for `/.mpd` urls are:
 
+- `?pipeline=accessibility_add`
 - `?pipeline=adaptation_sets_order`
 - `?pipeline=adaptation_sets_removal`
 - `?pipeline=adaptation_sets_representations_order`
 - `?pipeline=adaptation_sets_switching`
+- `?pipeline=audiochannelconfiguration_add`
+- `?pipeline=eventstream_value_add`
+- `?pipeline=hard_of_hearing_add`
 - `?pipeline=low_latency`
 - `?pipeline=low_latency_with_essential_property`
 - `?pipeline=representations_order`
 - `?pipeline=representations_removal`
+- `?pipeline=role_add`
 - `?pipeline=supplemental_property_add`
 - `?pipeline=utc_add`
 - `?pipeline=utc_change`
