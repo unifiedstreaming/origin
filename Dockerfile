@@ -10,9 +10,6 @@ ARG BETA_REPO=https://beta.apk.unified-streaming.com/alpine/
 ARG STABLE_REPO=https://stable.apk.unified-streaming.com/alpine/
 ARG VERSION=1.11.5
 
-ARG SVN_REVISION=24699
-ARG TRUNK_REPO=http://artifact.internal.unified-streaming.com/${SVN_REVISION}/artifact/apk/alpine/v${ALPINEVERSION}
-
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
   https://stable.apk.unified-streaming.com/alpine@unified-streaming.com.rsa.pub
@@ -22,7 +19,6 @@ RUN apk \
   --update \
   --repository $BETA_REPO/v$ALPINEVERSION \
   --repository $STABLE_REPO/v$ALPINEVERSION \
-  --repository $TRUNK_REPO \
     add \
   apache2 \
   apache2-proxy \
