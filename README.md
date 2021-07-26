@@ -116,29 +116,40 @@ The available pipelines for `/.m3u8` urls are:
 - `?pipeline=default_audio_language`
 
 These pre-configured use cases are using some defaults that may or may not
-apply at all to your content!
-I.e. the `default_audio_language` sets English as the default audio track. If
+apply at all to your content (i.e. a pipeline may be configured to edit a
+subtitle track, but the original manifest may not have one)! If, after invoking
+a pipeline, you don't see any evident change in the manifest, check the
+pipeline configuration, reported in a comment header in the manifest itself and
+see if any change in the manifest is indeed expected or for that particular
+manifest.
+This may happen for HLS manifests as well, i.e. the `default_audio_language` 
+pipeline sets English as the default audio track. If
 that is already the default track in your original manifest, you will notice
-no visible changes in the edited manifest. In that case, either edit the
-configuration files present in the `/usr/share/manifest-edit` folder of the
-docker image, or read next chapter to use your custom configuration file.
+no visible changes in the edited manifest.
+
+In these cases, either edit the pipeline
+configuration file in the `/usr/share/manifest-edit` folder of the
+docker image, or read next chapter to create and use your own custom
+configuration file.
 
 Manifest Edit customized pipeline
 ---------------------------------
 
 If you want to experiment creating your own pipeline, the suggested way to
-do so is to mount in the docker image the provided `my_use_case.yaml` file
-using additional docker run options (see the following example):
+do so is to edit the provided `my_use_case.yaml` file and mount in the docker
+image using additional docker run options (see the following example):
 
 ```bash
 docker run \
   -e UspLicenseKey=<license_key> \
+  -e REMOTE_PATH=usp-s3-storage \
   -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
   -e LOG_LEVEL=debug \
   -v "$(pwd)"/my_use_case.yaml:/usr/share/manifest-edit/my_use_case.yaml \
   -e MY_USE_CASE=my_use_case \
   -p 1080:80 \
-  unifiedstreaming/origin:1.10.28-manifest-edit
+  --name unified-origin-manifest-edit \
+  unifiedstreaming/origin:1.11.5-manifest-edit
 ```
 
 You can now edit the `my_use_case.yaml` local file based on your needs. Refer
