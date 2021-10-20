@@ -1,4 +1,4 @@
-![logo](https://raw.githubusercontent.com/unifiedstreaming/origin/trunk/unifiedstreaming-logo-black.png)
+![logo](https://raw.githubusercontent.com/unifiedstreaming/origin/stable/unifiedstreaming-logo-black.png)
 
 # What is Unified Origin?
 
