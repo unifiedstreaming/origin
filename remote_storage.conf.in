@@ -1,8 +1,0 @@
-<Location "/{{REMOTE_PATH}}/">
-    IsmProxyPass "{{REMOTE_STORAGE_URL}}"
-</Location>
-
-# Proxy location and timeout parameters for apache workers when using UspEnableSubreq
-<Proxy "{{REMOTE_STORAGE_URL}}">
-    ProxySet connectiontimeout=5 enablereuse=on keepalive=on retry=0 timeout=30 ttl=300
-</Proxy>

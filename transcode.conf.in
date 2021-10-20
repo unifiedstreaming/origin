@@ -1,7 +1,0 @@
-<Directory /var/www/unified-origin/{{TRANSCODE_PATH}}>
-  IsmProxyPass {{REMOTE_STORAGE_URL}}
-</Directory>
-
-<Location /{{TRANSCODE_PATH}}>
-  TranscodeProxyPass {{TRANSCODE_URL}}
-</Location>
