@@ -1,0 +1,12 @@
+mpd:
+- manifest_edit.plugins.mpd.descriptor_add:
+    periods:
+      - '*' : '.*'
+        adaptationSets:
+          - contentType: "video"
+            representations:
+              - '*' : '.*'
+                plugin_config:
+                  name: 'SupplementalProperty'
+                  schemeIdUri: "MyCustomName"
+                  value: "MyCustomValue"
