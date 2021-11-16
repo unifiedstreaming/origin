@@ -8,6 +8,10 @@ Further documentation is available at: <http://docs.unified-streaming.com>
 
 ## Usage
 
+Note: for running in production we strongly recommend either [building your own
+Docker image](https://docs.unified-streaming.com/installation/evaluation.html#creating-your-own-docker-images),
+or using this image with additional configuration files in order to set up access control, tune Apache MPM, etc.
+
 This image is usable out of the box, but must be configured using environment variables.
 
 Available variables are:
