@@ -6,7 +6,7 @@ FROM alpine:$ALPINEVERSION
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG ALPINEVERSION
 ARG REPO=https://beta.apk.unified-streaming.com/alpine/
-ARG VERSION=1.11.9
+ARG VERSION=1.11.12
 
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
@@ -21,11 +21,13 @@ RUN apk \
         apache2-proxy \
         apache2-ssl \
         mp4split~$VERSION \
+        mp4split-ffmpeg-plugins~$VERSION \
         mod_smooth_streaming~$VERSION \
         mod_unified_s3_auth~$VERSION \
         manifest-edit~$VERSION \
         python3 \
-        py3-pip \
+&&  python3 -m ensurepip --upgrade \
+&&  python3 -m pip install --upgrade pip \
 &&  pip3 install \
         pyyaml==5.3.1 \
         schema==0.7.3 \
@@ -46,6 +48,9 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Copy webpage
 COPY html /var/www/unified-origin/
+
+# Copy Transcoder Config for ffmpeg-usp
+COPY ffmpeg-transcoders.usp /etc/ffmpeg-transcoders.usp
 
 EXPOSE 80
 
