@@ -26,6 +26,7 @@ Available variables are:
 |S3_REGION|If using S3 remote storage with v4 authentication set the region|No|
 |LOG_LEVEL|Sets the Apache error log level|No|
 |LOG_FORMAT|Sets a custom Apache log format|No|
+|REST_API_PORT|Enable the REST API for publishing point management on this port|No|
 
 ### Apache Configuration
 Additional Apache configuration files can be used by mounting them as Docker

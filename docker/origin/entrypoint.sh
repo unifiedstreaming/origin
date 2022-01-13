@@ -47,6 +47,12 @@ if [ "$REMOTE_STORAGE_URL" ]
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REMOTE_STORAGE_URL"
 fi
 
+# REST API
+if [ "$REST_API_PORT" ]
+  then
+  export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REST_API_PORT"
+fi
+
 # change Listen 80 to Listen 0.0.0.0:80 to avoid some strange issues when IPv6 is available
 /bin/sed -i "s@Listen 80@Listen 0.0.0.0:80@g" /etc/apache2/httpd.conf
 

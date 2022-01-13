@@ -1,4 +1,4 @@
-ARG ALPINEVERSION=3.14
+ARG ALPINEVERSION=3.15
 
 FROM alpine:$ALPINEVERSION
 
@@ -51,6 +51,9 @@ COPY html /var/www/unified-origin/
 
 # Copy Transcoder Config for ffmpeg-usp
 COPY ffmpeg-transcoders.usp /etc/ffmpeg-transcoders.usp
+
+# set Apache as owner of /var/www/unified-origin so it can write from API
+RUN chown apache:apache /var/www/unified-origin
 
 EXPOSE 80
 
