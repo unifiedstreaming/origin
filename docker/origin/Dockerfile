@@ -5,7 +5,7 @@ FROM alpine:$ALPINEVERSION
 # ARGs declared before FROM are in a different scope, so need to be stated again
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG ALPINEVERSION
-ARG REPO=http://artifact.internal.unified-streaming.com/25759/artifact/apk/alpine
+ARG REPO=http://artifact.internal.unified-streaming.com/25810/artifact/apk/alpine
 ARG VERSION=1.11.13
 
 # Get USP public key
@@ -24,7 +24,6 @@ RUN apk \
         mp4split-ffmpeg-plugins~$VERSION \
         mod_smooth_streaming~$VERSION \
         mod_unified_s3_auth~$VERSION \
-        python3 \
 &&  rm -f /var/cache/apk/*
 
 # Set up directories and log file redirection
