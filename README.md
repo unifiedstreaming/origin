@@ -26,7 +26,7 @@ reference when creating your own. Do not edit these files.
 
 Once you have created a yaml configuration file in ``etc/manifest-edit``, you
 can apply it to a manifest by just appending the query parameter string 
-``?python_pipeline_config=<yaml file name> to the manifest URL. I.e. if you
+``?python_pipeline_config=<yaml file name>`` to the manifest URL. I.e. if you
 have a ``etc/manifest-edit/cool-transformation.yaml`` configuration file and
 an MPD manifest at ``http://localhost/video.ism/.mpd``, you can apply the use
 case to the manifest using the URL 
