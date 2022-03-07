@@ -5,7 +5,7 @@ FROM alpine:$ALPINEVERSION
 # ARGs declared before FROM are in a different scope, so need to be stated again
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG ALPINEVERSION
-ARG REPO=http://artifact.internal.unified-streaming.com/25810/artifact/apk/alpine
+ARG REPO=http://artifact.internal.unified-streaming.com/25881/artifact/apk/alpine
 ARG VERSION=1.11.13
 
 # Get USP public key
@@ -36,6 +36,10 @@ RUN mkdir -p /run/apache2 \
 # Copy apache config and entrypoint script
 COPY conf.d /etc/apache2/conf.d
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Copy all available Manifest Edit examples in /etc/manifest_edit folder
+RUN mkdir -p /etc/manifest-edit \
+    && cp -rp /usr/share/manifest-edit/* /etc/manifest-edit/
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
