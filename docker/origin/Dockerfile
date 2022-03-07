@@ -10,7 +10,7 @@ ARG VERSION=1.11.13
 
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
-    https://stable.apk.unified-streaming.com/alpine@unified-streaming.com.rsa.pub
+  https://stable.apk.unified-streaming.com/alpine@unified-streaming.com.rsa.pub
 
 # Install Origin
 RUN apk \
