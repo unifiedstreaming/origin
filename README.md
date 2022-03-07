@@ -14,22 +14,30 @@ network, since it makes use of a private development package repository.
   ``export UspLicenseKey=<your license>``
 - launch an Origin container using the included ``launch_docker.sh`` script
 
-The Origin is pre-configured to always enable Manifest Edit. As a user,
-you just need to enable one or more use cases by dropping YAML
-pipeline configuration files in the ``/etc/manifest-edit`` folder (mounted as
-``etc/manifest-edit`` in your host's working copy).
+The Origin is pre-configured with Manifest Edit functionalities activated.
+Use cases are enabled by pipeline configuration files which the Origin reads
+from the ``/etc/manifest-edit`` folder. By default, this folder is empty.
+Users are expected to populate it with one pipeline configuration file per use
+case that they wish to activate. 
 
-The local folder ``usr/share/manifest-edit`` (populated at container startup)
-contains a copy of the example pipeline configuration files shipped with the
-Origin installation. Consider these YAMLs a read-only copy to use as a
-reference when creating your own. Do not edit these files.
+Notice that when using this container you can add your configuration files to
+the locally-mounted ``etc/manifest-edit`` subfolder of this working copy.
 
-Once you have created a yaml configuration file in ``etc/manifest-edit``, you
-can apply it to a manifest by just appending the query parameter string 
-``?python_pipeline_config=<yaml file name>`` to the manifest URL. I.e. if you
-have a ``etc/manifest-edit/cool-transformation.yaml`` configuration file and
-an MPD manifest at ``http://localhost/video.ism/.mpd``, you can apply the use
-case to the manifest using the URL 
+A copy of the example pipeline configuration files shipped with the
+Origin installation is available in the local folder
+``usr/share/manifest-edit`` (populated at container startup). Consider these
+YAMLs a read-only copy to use as a reference when creating your own. Do not
+edit these files.
+
+Once you have a yaml configuration file in ``etc/manifest-edit``, you
+can apply the related use case to a manifest by just appending the query
+parameter string ``?python_pipeline_config=<yaml file name>`` to the manifest
+URL. I.e. suppose your pipeline file and manifest are:
+
+- pipeline file ``etc/manifest-edit/cool-transformation.yaml``
+- MPD manifest ``http://localhost/video.ism/.mpd``,
+
+then you can apply the use case to the manifest using the URL 
 
 ```
 http://localhost/video.ism/.mpd?python_pipeline_config=cool-transformation
