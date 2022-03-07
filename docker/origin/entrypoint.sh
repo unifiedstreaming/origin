@@ -27,6 +27,13 @@ elif [ -z "$UspLicenseKey" ]
   export UspLicenseKey=$USP_LICENSE_KEY
 fi
 
+# copy manifest edit examples to another folder if needed
+if [ "$LOCAL_MANIFEST_EDIT_EXAMPLES" ]
+then
+    mkdir -p /host/$LOCAL_MANIFEST_EDIT_EXAMPLES
+    cp -rp /usr/share/manifest-edit/* /host/$LOCAL_MANIFEST_EDIT_EXAMPLES
+fi
+
 # set up remote storage proxy config
 if [ "$S3_ACCESS_KEY" ]
 then

@@ -1,18 +1,102 @@
 ![logo](https://raw.githubusercontent.com/unifiedstreaming/origin/stable/unifiedstreaming-logo-black.png)
 
-# What is Unified Origin?
+## Manifest Edit "Ops Demo" Image
 
-Unified Origin offers one solution for just-in-time packaging to MPEG-DASH, Apple (HLS), Adobe (HDS) and Microsoft (MSS). Our added features include content protection, restart TV, time-shift, catchup-TV, subtitles, and multiple language and audio tracks.
+This Unified Origin image is for Unified internal usage only. Its purpose is to
+showcase features under development. It can only be built from Unified local
+network, since it makes use of a private development package repository.
 
-Further documentation is available at: <http://docs.unified-streaming.com>
+### Usage
 
-## Usage
+- Clone this repository and cd into it
+- build the image ``docker build -t unifiedstreaming/origin:25881-dev docker/origin``
+- on the bash terminal you are going to use, export your license
+  ``export UspLicenseKey=<your license>``
+- launch an Origin container using the included ``launch_docker.sh`` script
 
-Note: for running in production we strongly recommend either [building your own
-Docker image](https://docs.unified-streaming.com/installation/evaluation.html#creating-your-own-docker-images),
-or using this image with additional configuration files in order to set up access control, tune Apache MPM, etc.
+The Origin is pre-configured to always enable Manifest Edit. As a user,
+you just need to enable one or more use cases by dropping YAML
+pipeline configuration files in the ``/etc/manifest-edit`` folder (mounted as
+``etc/manifest-edit`` in your host's working copy).
 
-This image is usable out of the box, but must be configured using environment variables. 
+The local folder ``usr/share/manifest-edit`` (populated at container startup)
+contains a copy of the example pipeline configuration files shipped with the
+Origin installation. Consider these YAMLs a read-only copy to use as a
+reference when creating your own. Do not edit these files.
+
+Once you have created a yaml configuration file in ``etc/manifest-edit``, you
+can apply it to a manifest by just appending the query parameter string 
+``?python_pipeline_config=<yaml file name> to the manifest URL. I.e. if you
+have a ``etc/manifest-edit/cool-transformation.yaml`` configuration file and
+an MPD manifest at ``http://localhost/video.ism/.mpd``, you can apply the use
+case to the manifest using the URL 
+
+```
+http://localhost/video.ism/.mpd?python_pipeline_config=cool-transformation
+```
+
+Notice that the query parameter must use the configuration filename only,
+**without** the ``.yaml`` extension.
+
+## Excercises
+
+1. Add an "UTC timing" element to the following manifest: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd.
+  Make sure it uses the "urn:mpeg:dash:utc:http-ntp:2014" format and the
+  "http://my.timeserver.com/?http-ntp" value.
+  Then add a second one using the "urn:mpeg:dash:utc:http-iso:2014" format
+  and the "http://my.timeserver.com/?http-iso" value. The resulting manifest
+  must have two UTCTiming elements.
+2. The following manifest has WebVTT subtitles, for which Origin by default
+  generates sidecar subtitle tracks: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd
+  Create a Manifest Edit configuration file to remove the sidecar tracks
+  (mimeType="text/vtt"): check that the generated manifest is correct.
+3. Turn the "English" subtitle track of the following manifest into
+  "Hard of hearing": http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd
+4. Set the "DEFAULT" subtitle track to "English" in the following main
+   playlist: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.m3u8
+5. Look at the main playlist of the previous example. The
+   ``?python_pipeline_config`` query parameter appears in every media playlist
+   URLs. Find a way to avoid this.
+
+
+### TIPS
+
+The following workflow is suggested:
+
+- Identify the plugin that seems more relevant to your use case: help yourself
+  with the [Plugins Library](http://docs.external.unified-streaming.com/documentation/manifest-edit/plugins_library/index.html)
+  or [included Use Cases](http://docs.external.unified-streaming.com/documentation/manifest-edit/use_cases/index.html) documentation pages.
+- Identify the example file that seems more relevant to your use case from the
+  ``usr/share/manifest-edit`` folder
+- copy-paste the content of the example file you have identified into your
+  own yaml file in the ``etc/manifest-edit`` folder. Choose a significant name
+  for it.
+- customize the number/order of plugins you need to include in your pipeline,
+  if needed.
+- for each plugin, customize the yaml lines that select which manifest elements
+  are to be edited (see [Element Selection](http://docs.external.unified-streaming.com/documentation/manifest-edit/plugins_library/plugins/mpd/common/manifest_selection.html)
+  if needed). Notice that some of the simplest plugins do not require such a
+  selection.
+- for each plugin, customize the ``plugin_config`` section to configure the
+  specific modification you need to apply to the selected element
+- troubleshoot using ``docker logs -f``
+
+## General reminder about Origin image usage
+
+This image is not different at all from a plain Origin image in terms of
+installation and configuration. Nothing has been modified in that regard to
+provide manifest-edit specific configuration.
+
+The only changes specific to this demo have been done to the Dockerfile and
+entrypoint.sh script, just to make the default manifest edit example files
+available in a host folder, to simplify access to them instead than just
+leaving them in the container.
+
+The provided launcher script as well just deals with enabling the right
+mount and enabling remote storage.
+
+This image is usable out of the box, but must be configured using environment
+variables. 
 
 Available variables are:
 
@@ -39,80 +123,3 @@ docker run \
   -p 80:80 \
   unifiedstreaming/unified-origin:latest
 ```
-
-## Tutorial
-
-A full tutorial is available at <http://docs.unified-streaming.com/installation/evaluation.html>
-
-## Manifest Edit
-
-This image also contains Manifest Edit functionality with a set of default
-use cases as described in our [documentation](https://docs.unified-streaming.com/documentation/manifest-edit/use_cases/index.html).
-
-You can enable each use case by adding to any `/.mpd` or `/.m3u8` url a query
-parameter passing a pipeline name, which will generate an "edited" manifest.
-The available pipelines for `/.mpd` urls are:
-
-- `?python_pipeline_config=accessibility_add`
-- `?python_pipeline_config=adaptation_sets_order`
-- `?python_pipeline_config=adaptation_sets_removal`
-- `?python_pipeline_config=adaptation_sets_representations_order`
-- `?python_pipeline_config=adaptation_sets_switching`
-- `?python_pipeline_config=audiochannelconfiguration_add`
-- `?python_pipeline_config=eventstream_value_add`
-- `?python_pipeline_config=hard_of_hearing_add`
-- `?python_pipeline_config=low_latency`
-- `?python_pipeline_config=low_latency_with_essential_property`
-- `?python_pipeline_config=representations_order`
-- `?python_pipeline_config=representations_removal`
-- `?python_pipeline_config=role_add`
-- `?python_pipeline_config=supplemental_property_add`
-- `?python_pipeline_config=utc_add`
-- `?python_pipeline_config=utc_change`
-- `?python_pipeline_config=utc_remove`
-
-The available pipelines for `/.m3u8` urls are:
-
-- `?python_pipeline_config=default_audio_language`
-
-These pre-configured use cases are using some defaults that may or may not
-apply at all to your content (i.e. a pipeline may be configured to edit a
-subtitle track, but the original manifest may not have one)! If, after invoking
-a pipeline, you don't see any evident change in the manifest, check the
-pipeline configuration, reported in a comment header in the manifest itself and
-see if any change in the manifest is indeed expected or for that particular
-manifest.
-This may happen for HLS manifests as well, i.e. the `default_audio_language` 
-pipeline sets English as the default audio track. If
-that is already the default track in your original manifest, you will notice
-no visible changes in the edited manifest.
-
-In these cases, either edit the pipeline
-configuration file in the `/usr/share/manifest-edit` folder of the
-docker image, or read next chapter to create and use your own custom
-configuration file.
-
-### Manifest Edit customized pipeline
-
-If you want to experiment creating your own pipeline, the suggested way to
-do so is to edit the provided `my_use_case.yaml` file and mount in the docker
-image using additional docker run options (see the following example):
-
-```bash
-docker run \
-  -e UspLicenseKey=<license_key> \
-  -e REMOTE_PATH=usp-s3-storage \
-  -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
-  -v "$(pwd)"/my_use_case.yaml:/usr/share/manifest-edit/my_use_case.yaml \
-  -p 1080:80 \
-  --name unified-origin-manifest-edit \
-  unifiedstreaming/origin:1.11.5-manifest-edit
-```
-
-You can now edit the `my_use_case.yaml` local file based on your needs. Refer
-to individual plugins documentation for instructions on how to do so. Any
-saved change will be immediately available: the corresponding pipeline can be
-invoked with the query parameter
-
-- `?python_pipeline_config=my_use_case`
-

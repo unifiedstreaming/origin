@@ -37,10 +37,6 @@ RUN mkdir -p /run/apache2 \
 COPY conf.d /etc/apache2/conf.d
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Copy all available Manifest Edit examples in /etc/manifest_edit folder
-RUN mkdir -p /etc/manifest-edit \
-    && cp -rp /usr/share/manifest-edit/* /etc/manifest-edit/
-
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Copy webpage
