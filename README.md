@@ -35,7 +35,7 @@ parameter string ``?python_pipeline_config=<yaml file name>`` to the manifest
 URL. I.e. suppose your pipeline file and manifest are:
 
 - pipeline file ``etc/manifest-edit/cool-transformation.yaml``
-- MPD manifest ``http://localhost/video.ism/.mpd``,
+- MPD manifest ``http://localhost/video.ism/.mpd``
 
 then you can apply the use case to the manifest using the URL 
 
@@ -60,11 +60,13 @@ Notice that the query parameter must use the configuration filename only,
   (mimeType="text/vtt"): check that the generated manifest is correct.
 3. Turn the "English" subtitle track of the following manifest into
   "Hard of hearing": http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd
-4. Set the "DEFAULT" subtitle track to "English" in the following main
+4. Now implement functionalities from both exercise 2 and 3 in a single
+   pipeline configuration file.
+5. Set the "DEFAULT" subtitle track to "English" in the following main
    playlist: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.m3u8
-5. Look at the main playlist of the previous example. The
+6. Look at the main playlist of the previous example. The
    ``?python_pipeline_config`` query parameter appears in every media playlist
-   URLs. Find a way to avoid this.
+   URLs. The same happens to DASH Segments URLs. Find a way to avoid this.
 
 
 ### TIPS
@@ -78,7 +80,7 @@ The following workflow is suggested:
   ``usr/share/manifest-edit`` folder
 - copy-paste the content of the example file you have identified into your
   own yaml file in the ``etc/manifest-edit`` folder. Choose a significant name
-  for it.
+  for it and use one file per exercise.
 - customize the number/order of plugins you need to include in your pipeline,
   if needed.
 - for each plugin, customize the yaml lines that select which manifest elements
@@ -89,7 +91,7 @@ The following workflow is suggested:
   specific modification you need to apply to the selected element
 - troubleshoot using ``docker logs -f``
 
-## Improvement in Manifest Edit installation
+## Improvements in Manifest Edit installation
 
 The following improvements have been delivered in the dev version of Manifest
 Edit and will be present starting from next beta:
@@ -102,15 +104,18 @@ Edit and will be present starting from next beta:
   Notice: this is true for Origin installation, not for Packager! If you just
   install mp4split, you will **not** get Manifest Edit as well but there will
   still be additional packages to install.
+  Relevant doc page: http://docs.external.unified-streaming.com/installation/distributions.html#manifest-edit-manifest-edit
 - Manifest Edit on Windows has been turned into a "standalone executable"
   using py2exe. The executable and the needed libraries are included in the
   mp4split-1.11.13-win64.zip archive file. The main consequence is that users
   are not required anymore to install Python, pip or any other dependency on
   their system, the zip archive is all that is needed.
+  Relevant doc page: http://docs.external.unified-streaming.com/installation/distributions.html#manifest-edit-install-windows
 - The Apache default configuration (the one suggested in the doc and the one
   installed by default by Origin installation package) now includes a section
   that activates Manifest Edit. This is not treated anymore as an optional
   step but as something that just should always be there.
+  Relevant doc page: http://docs.external.unified-streaming.com/installation/origin/apache.html#sample-apache-configuration-file
 - The default configuration goal is to enable the "Just drop a yaml file in a
   folder" approach. This means:
   - installing examples yaml files to ``/usr/share/manifest-edit``
@@ -118,9 +123,14 @@ Edit and will be present starting from next beta:
     by default is empty
   - activating a use cases just involves creating a yaml files at
     this location (no Apache reconfiguration/restart)
+    
+  Relevant doc pages:
+  - http://docs.external.unified-streaming.com/installation/origin/apache.html#manifest-edit-related-configuration
+  - http://docs.external.unified-streaming.com/documentation/manifest-edit/basic_concepts/index.html#integration-with-the-origin
 - An updated Apache LocationMatch configuration to enable correct playback
   (i.e. match only manifests URLs, avoid matching media segments) for any
   possible combination of local and remote storage.
+  Relevant doc page: http://docs.external.unified-streaming.com/installation/origin/apache.html#apache-configuration-walkthrough
 
 Included in this image but subject to review:
 
