@@ -89,6 +89,46 @@ The following workflow is suggested:
   specific modification you need to apply to the selected element
 - troubleshoot using ``docker logs -f``
 
+## Improvement in Manifest Edit installation
+
+The following improvements have been delivered in the dev version of Manifest
+Edit and will be present starting from next beta:
+
+- Manifest Edit packages are now a dependency of mod_smooth_streaming on all
+  Unix-like OSes. This means that when installing the Origin, all the packages
+  and python dependencies that previously had to be installed manually will be
+  automatically installed. Also, mod_ext_filter or any other required Apache
+  module are loaded by default.
+  Notice: this is true for Origin installation, not for Packager! If you just
+  install mp4split, you will **not** get Manifest Edit as well but there will
+  still be additional packages to install.
+- Manifest Edit on Windows has been turned into a "standalone executable"
+  using py2exe. The executable and the needed libraries are included in the
+  mp4split-1.11.13-win64.zip archive file. The main consequence is that users
+  are not required anymore to install Python, pip or any other dependency on
+  their system, the zip archive is all that is needed.
+- The Apache default configuration (the one suggested in the doc and the one
+  installed by default by Origin installation package) now includes a section
+  that activates Manifest Edit. This is not treated anymore as an optional
+  step but as something that just should always be there.
+- The default configuration goal is to enable the "Just drop a yaml file in a
+  folder" approach. This means:
+  - installing examples yaml files to ``/usr/share/manifest-edit``
+  - having Apache configured to look for them in ``/etc/manifest-edit``, which
+    by default is empty
+  - activating a use cases just involves creating a yaml files at
+    this location (no Apache reconfiguration/restart)
+- An updated Apache LocationMatch configuration to enable correct playback
+  (i.e. match only manifests URLs, avoid matching media segments) for any
+  possible combination of local and remote storage.
+
+Included in this image but subject to review:
+
+- a modified version of ``mod_ext_filter``, called ``mod_unified_filter``,
+  allowing 500 Status in case of non-existing/incorrect yaml files.
+  This will be removed and most probably we will revert to the old behaviour
+  of getting a 200 Status with an empty body in case of error.
+
 ## General reminder about Origin image usage
 
 This image is not different at all from a plain Origin image in terms of
