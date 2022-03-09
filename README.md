@@ -49,30 +49,40 @@ Notice that the query parameter must use the configuration filename only,
 
 ## Excercises
 
-1. Add an "UTC timing" element to the following manifest: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd.
+Manifest for DASH exercises: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd
+
+Manifest for HLS exercises: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.m3u8
+
+### Dash
+
+1. Add an "UTC timing" element.
   Make sure it uses the "urn:mpeg:dash:utc:http-ntp:2014" format and the
   "http://my.timeserver.com/?http-ntp" value.
   Then add a second one using the "urn:mpeg:dash:utc:http-iso:2014" format
   and the "http://my.timeserver.com/?http-iso" value. The resulting manifest
   must have two UTCTiming elements.
-2. The following manifest has WebVTT subtitles, for which Origin by default
-  generates sidecar subtitle tracks: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd
+2. The manifest has WebVTT subtitles, for which Origin by default
+  generates sidecar subtitle tracks.
   Create a Manifest Edit configuration file to remove the sidecar tracks
   (mimeType="text/vtt"): check that the generated manifest is correct.
-3. Turn the "English" subtitle track of the following manifest into
-  "Hard of hearing": http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd
+3. Turn the "English" subtitle track of the manifest into
+  "Hard of hearing".
 4. Now implement functionalities from both exercise 2 and 3 in a single
    pipeline configuration file.
-5. Set the "DEFAULT" subtitle track to "English" in the following main
-   playlist: http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.m3u8
-6. Look at the main playlist of the previous example. The
+5. Look at the main playlist of the previous example. The
    ``?python_pipeline_config`` query parameter appears in every media playlist
    URLs. The same happens to DASH Segments URLs. Find a way to avoid this.
-7. When generating sidecar subtitle tracks and using the ``--track-description``
+6. When generating sidecar subtitle tracks and using the ``--track-description``
    flag, a DASH Label is only added to the fragmented mp4 track and not to the
    sidecar one. Create a pipeline configuration file to add a Label to each
-   track with a description of the language (i.e. if lang==en, use and "English"
-   Label, for lang==fr use "French" and so on)
+   track with a description of the language (i.e. if lang=en, use and "English"
+   Label, for lang=fr use "French" and so on).
+7. Change the role of the English subtitle tracks from "subtitle" to
+   "forced-subtitle".
+
+### HLS
+
+1. Set the "DEFAULT" subtitle track to "English".
 
 
 ### TIPS
