@@ -9,6 +9,7 @@ network, since it makes use of a private development package repository.
 ### Usage
 
 - Clone this repository and cd into it
+- checkout the manifest-edit branch ``git checkout -t origin/manifest-edit``
 - build the image ``docker build -t unifiedstreaming/origin:25881-dev docker/origin``
 - on the bash terminal you are going to use, export your license
   ``export UspLicenseKey=<your license>``
@@ -67,6 +68,11 @@ Notice that the query parameter must use the configuration filename only,
 6. Look at the main playlist of the previous example. The
    ``?python_pipeline_config`` query parameter appears in every media playlist
    URLs. The same happens to DASH Segments URLs. Find a way to avoid this.
+7. When generating sidecar subtitle tracks and using the ``--track-description``
+   flag, a DASH Label is only added to the fragmented mp4 track and not to the
+   sidecar one. Create a pipeline configuration file to add a Label to each
+   track with a description of the language (i.e. if lang==en, use and "English"
+   Label, for lang==fr use "French" and so on)
 
 
 ### TIPS
