@@ -36,15 +36,27 @@ if [ "$S3_SECRET_KEY" ]
 then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D S3_SECRET_KEY"
 fi
+if [ "$S3_SECURITY_TOKEN" ]
+then
+  export EXTRA_OPTIONS="$EXTRA_OPTIONS -D S3_SECURITY_TOKEN"
+fi
 if [ "$S3_REGION" ]
 then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D S3_REGION"
 fi
 
+
+
 # remote storage
 if [ "$REMOTE_STORAGE_URL" ]
   then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REMOTE_STORAGE_URL"
+fi
+
+# REST API
+if [ "$REST_API_PORT" ]
+  then
+  export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REST_API_PORT"
 fi
 
 # change Listen 80 to Listen 0.0.0.0:80 to avoid some strange issues when IPv6 is available
