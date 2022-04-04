@@ -36,10 +36,16 @@ if [ "$S3_SECRET_KEY" ]
 then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D S3_SECRET_KEY"
 fi
+if [ "$S3_SECURITY_TOKEN" ]
+then
+  export EXTRA_OPTIONS="$EXTRA_OPTIONS -D S3_SECURITY_TOKEN"
+fi
 if [ "$S3_REGION" ]
 then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D S3_REGION"
 fi
+
+
 
 # remote storage
 if [ "$REMOTE_STORAGE_URL" ]
