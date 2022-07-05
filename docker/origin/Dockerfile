@@ -1,4 +1,4 @@
-ARG ALPINEVERSION=3.15
+ARG ALPINEVERSION=3.16
 
 FROM alpine:$ALPINEVERSION
 
@@ -6,7 +6,7 @@ FROM alpine:$ALPINEVERSION
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG ALPINEVERSION
 ARG REPO=https://beta.apk.unified-streaming.com/alpine/
-ARG VERSION=1.11.14
+ARG VERSION=1.11.17
 
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
