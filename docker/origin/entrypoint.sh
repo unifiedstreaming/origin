@@ -25,7 +25,7 @@ fi
 if [ "$REMOTE_STORAGE_URL" ]
 then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REMOTE_STORAGE_URL"
-  if [ -z "$REMOTE_PATH"]
+  if [ -z "$REMOTE_PATH" ]
   then
     export REMOTE_PATH=remote
   fi
