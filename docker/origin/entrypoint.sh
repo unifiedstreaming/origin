@@ -11,6 +11,9 @@ elif [ -z "$UspLicenseKey" ]
   export UspLicenseKey=$USP_LICENSE_KEY
 fi
 
+# write license key to file
+echo "$UspLicenseKey" > /etc/usp-license.key
+
 # If specified, override default log level and format config
 if [ "$LOG_FORMAT" ]
 then
