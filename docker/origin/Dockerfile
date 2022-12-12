@@ -6,7 +6,7 @@ FROM alpine:$ALPINEVERSION
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG ALPINEVERSION
 ARG REPO=https://beta.apk.unified-streaming.com/alpine/
-ARG VERSION=1.11.22
+ARG VERSION=1.11.23
 
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
@@ -40,6 +40,9 @@ RUN mkdir -p /run/apache2 \
 # Enable default Manifest Edit pipelines
 RUN mkdir -p /etc/manifest-edit \
     && cp -R /usr/share/manifest-edit/* /etc/manifest-edit/
+
+# Swap MPM from prefork to worker
+RUN sed -i "s|LoadModule mpm_prefork_module modules/mod_mpm_prefork.so|#LoadModule mpm_prefork_module modules/mod_mpm_prefork.so|g; s|#LoadModule mpm_worker_module modules/mod_mpm_worker.so|LoadModule mpm_worker_module modules/mod_mpm_worker.so|g" /etc/apache2/httpd.conf
 
 # Copy apache config and entrypoint script
 COPY conf.d /etc/apache2/conf.d
