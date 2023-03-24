@@ -1,0 +1,39 @@
+[Activate an existing plugin/use case (DASH)]
+
+  Uncomment /etc/manifest-edit/conf/mpd/default.yaml
+  
+  OR
+
+  Drop a yaml:
+
+  cp /usr/share/manifest-edit/mpd/label_add.yaml /etc/manifest-edit/conf/mpd/
+
+  Get a manifest and save it: 
+  
+    curl "http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd" --output tos_original.mpd
+
+  Get the edited manifest and save it: 
+  
+    curl "http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd?suppress_query_parameters=true&python_pipeline_config=mpd/label_add" --output tos_edited.mpd
+
+[ WebVTT Sidecar subtitle example ]
+
+   Uncomment related section in mpd/default.yaml
+   
+   curl "http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd" --output tos.mpd
+
+   #enable element remove by selection adaptation set by mimeType
+
+   curl "http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-wvtt.ism/.mpd?suppress_query_parameters=true&python_pipeline_config=mpd/default" --output tos-edited.mpd
+
+[ Custom plugin: default subs on playlist (HLS)]
+
+  Get a manifest : 
+  
+    curl "http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-multiple-subtitles.ism/.m3u8" --output tos_original.m3u8
+
+  uncomment example code in m3u8_main/custom.py 
+
+  Get the edited manifest : 
+  
+    curl "http://localhost/usp-s3-storage/tears-of-steel/tears-of-steel-multiple-subtitles.ism/.m3u8?suppress_query_parameters=true&python_pipeline_config=m3u8_main/default" --output tos_edited.m3u8

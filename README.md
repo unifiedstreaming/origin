@@ -46,46 +46,32 @@ A full tutorial is available at <http://docs.unified-streaming.com/installation/
 
 ## Manifest Edit
 
-> **NOTICE**: older versions of this Docker image (prior to 1.11.13) used a different setup for accessing the default Manifest Edit pipelines, they now need to be referred to including the manifest type in the path.
-
 This image also contains Manifest Edit functionality with a set of default
 use cases as described in our [documentation](https://docs.unified-streaming.com/documentation/manifest-edit/use_cases/index.html).
 
-You can enable each use case by adding to any `/.mpd` or `/.m3u8` url a query
-parameter passing a pipeline name, which will generate an "edited" manifest.
-The available pipelines for `/.mpd` urls are:
+A default yaml configuration file is directly accessible, per each available
+manifest format, in the `/etc/manifest-edit/conf/mpd`, 
+`/etc/manifest-edit/conf/m3u8_main`, `/etc/manifest-edit/conf/m3u8_media`
+folder. You can enable various use cases by just uncommenting specific sections
+in these yaml files and then adding to any `/.mpd` or `/.m3u8` url a query
+parameter `?python_pipeline_config=mpd/default`,
+`?python_pipeline_config=m3u8_main/default`, or
+`?python_pipeline_config=m3u8_media/default`.
 
-- `?python_pipeline_config=mpd/accessibility_add`
-- `?python_pipeline_config=mpd/adaptation_sets_order`
-- `?python_pipeline_config=mpd/adaptation_sets_removal`
-- `?python_pipeline_config=mpd/adaptation_sets_representations_order`
-- `?python_pipeline_config=mpd/adaptation_sets_switching`
-- `?python_pipeline_config=mpd/audiochannelconfiguration_add`
-- `?python_pipeline_config=mpd/essential_property_add`
-- `?python_pipeline_config=mpd/essential_property_remove`
-- `?python_pipeline_config=mpd/eventstream_value_add`
-- `?python_pipeline_config=mpd/hard_of_hearing_add`
-- `?python_pipeline_config=mpd/label_add`
-- `?python_pipeline_config=mpd/label_remove`
-- `?python_pipeline_config=mpd/low_latency`
-- `?python_pipeline_config=mpd/low_latency_with_essential_property`
-- `?python_pipeline_config=mpd/multiple_isms.yaml`
-- `?python_pipeline_config=mpd/representations_order`
-- `?python_pipeline_config=mpd/representations_remove`
-- `?python_pipeline_config=mpd/role_add`
-- `?python_pipeline_config=mpd/supplemental_property_add`
-- `?python_pipeline_config=mpd/supplemental_property_remove`
-- `?python_pipeline_config=mpd/utc_add`
-- `?python_pipeline_config=mpd/utc_change`
-- `?python_pipeline_config=mpd/utc_remove`
+Alternatively, you can create your own configuration file. The recommended way
+is to start from existing example configuration files present in the
+`/usr/share/manifest-edit` folder. Copy the
+one you want to activate in the `/etc/manifest-edit/conf` folder and edit
+based on your need. You can now activate the use case by adding to
+any `/.mpd` or `/.m3u8` url a query parameter passing the pipeline name, which
+will generate an "edited" manifest.
 
-The available pipelines for `/.m3u8` urls are:
+For example, after creating an `/etc/manifest-edit/conf/mpd/my_use_case.yaml`,
+you can activate it with the URL query parameter
 
-- `?python_pipeline_config=m3u8/default_audio_language`
-- `?python_pipeline_config=m3u8/default_subs_language`
-- `?python_pipeline_config=m3u8/hard_of_hearing`
+- `?python_pipeline_config=mpd/my_use_case`
 
-These pre-configured use cases are using some defaults that may or may not
+Notice that example yaml files use some defaults that may or may not
 apply at all to your content (i.e. a pipeline may be configured to edit a
 subtitle track, but the original manifest may not have one)! If, after invoking
 a pipeline, you don't see any evident change in the manifest, check the
@@ -97,31 +83,3 @@ pipeline sets English as the default audio track. If
 that is already the default track in your original manifest, you will notice
 no visible changes in the edited manifest.
 
-In these cases, either edit the pipeline
-configuration file in the `/usr/share/manifest-edit` folder of the
-docker image, or read next chapter to create and use your own custom
-configuration file.
-
-### Manifest Edit customized pipeline
-
-If you want to experiment creating your own pipeline, the suggested way to
-do so is to edit the provided `my_use_case.yaml` file and mount in the docker
-image using additional docker run options (see the following example):
-
-```bash
-docker run \
-  -e UspLicenseKey=<license_key> \
-  -e REMOTE_PATH=usp-s3-storage \
-  -e REMOTE_STORAGE_URL=http://usp-s3-storage.s3.eu-central-1.amazonaws.com/ \
-  -v "$(pwd)"/my_use_case.yaml:/etc/manifest-edit/my_use_case.yaml \
-  -p 1080:80 \
-  --name unified-origin-manifest-edit \
-  unifiedstreaming/origin:latest
-```
-
-You can now edit the `my_use_case.yaml` local file based on your needs. Refer
-to individual plugins documentation for instructions on how to do so. Any
-saved change will be immediately available: the corresponding pipeline can be
-invoked with the query parameter
-
-- `?python_pipeline_config=my_use_case`

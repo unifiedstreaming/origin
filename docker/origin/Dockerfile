@@ -38,8 +38,8 @@ RUN mkdir -p /run/apache2 \
         /etc/apache2/conf.d/userdir.conf
 
 # Enable default Manifest Edit pipelines
-RUN mkdir -p /etc/manifest-edit \
-    && cp -R /usr/share/manifest-edit/* /etc/manifest-edit/
+#RUN mkdir -p /etc/manifest-edit \
+#    && cp -R /usr/share/manifest-edit/* /etc/manifest-edit/
 
 # Swap MPM from prefork to worker
 RUN sed -i "s|LoadModule mpm_prefork_module modules/mod_mpm_prefork.so|#LoadModule mpm_prefork_module modules/mod_mpm_prefork.so|g; s|#LoadModule mpm_worker_module modules/mod_mpm_worker.so|LoadModule mpm_worker_module modules/mod_mpm_worker.so|g" /etc/apache2/httpd.conf
