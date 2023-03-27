@@ -3,8 +3,8 @@ FROM ubuntu:$UBUNTUVERSION
 
 ARG ARCH=amd64
 ARG DIST=jammy
-ARG REPO=http://artifact.internal.unified-streaming.com/last/apt/
-ARG VERSION
+ARG REPO=https://beta.apt.unified-streaming.com/
+ARG VERSION=1.12.1
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y wget gnupg curl
