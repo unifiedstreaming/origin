@@ -62,4 +62,9 @@ if [ "${1#-}" != "$1" ]; then
   set -- apachectl $EXTRA_OPTIONS "$@"
 fi
 
+uwsgi --socket localhost:3002 \
+  --plugins python3 \
+  --protocol uwsgi \
+  --wsgi-file /var/www/unified-origin/wsgi-scripts/manifestedit.wsgi &
+
 exec "$@"
