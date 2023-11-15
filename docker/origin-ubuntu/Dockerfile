@@ -29,6 +29,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
                 manifest-edit=$VERSION; \
         fi
 
+# Yeah, not ideal, I know. Just testing for the moment
+RUN pip install requests
+
 # config stuffs
 RUN a2dismod mpm_prefork mpm_event \
     && a2enmod mpm_worker mod_smooth_streaming proxy proxy_uwsgi \

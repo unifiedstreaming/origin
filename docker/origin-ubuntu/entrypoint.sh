@@ -65,6 +65,7 @@ fi
 uwsgi --socket localhost:3002 \
   --plugins python3 \
   --protocol uwsgi \
-  --wsgi-file /var/www/unified-origin/wsgi-scripts/manifestedit.wsgi &
+  --wsgi-file /var/www/unified-origin/wsgi-scripts/manifestedit.wsgi \
+  --touch-reload /var/www/unified-origin/wsgi-scripts/manifestedit.wsgi &
 
 exec "$@"
