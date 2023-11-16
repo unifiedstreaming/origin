@@ -52,10 +52,18 @@ def application(environ, start_response):
     # - recompute Etag
     # 
 
-    status_code = f"{response.status_code}"
-    # Does the following always work?
-    headers = [(k, v) for k, v in response.headers.items()]
+    status_code = f"{response.status_code} " # trailing space intentional
     content = response.content
+
+    # Adjust content length
+    response.headers["Content-Length"] = f'{len(content)}'
+
+    # Headers are stored as a dictionary in requests. uwsgi requires them
+    # to be a list of tuples. Does the following always work?
+    headers = [(k, v) for k, v in response.headers.items()]
+
+    headers.append(('Debug-env.python.pipeline', f'{environ.get("pipeline", "")}'))
+    
 
     # response_headers = [('Content-type', 'text/plain'),
     #                     ('Content-Length', str(len(output)))]

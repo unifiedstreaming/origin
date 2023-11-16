@@ -16,9 +16,7 @@ RUN wget https://stable.apt.unified-streaming.com/unifiedstreaming.pub \
 # install origin
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install apache2 \
-        libapache2-mod-proxy-uwsgi \
-        uwsgi \
-        uwsgi-plugin-python3 \
+        libapache2-mod-wsgi-py3 \
     && if [ -z "$VERSION" ]; then \
             apt-get -y install libapache2-mod-smooth-streaming; \
         else \
@@ -34,7 +32,7 @@ RUN pip install requests
 
 # config stuffs
 RUN a2dismod mpm_prefork mpm_event \
-    && a2enmod mpm_worker mod_smooth_streaming proxy proxy_uwsgi \
+    && a2enmod mpm_worker mod_smooth_streaming wsgi rewrite \
     && a2dissite 000-default
 
 # Copy webpage
