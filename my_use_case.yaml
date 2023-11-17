@@ -1,12 +1,1724 @@
 mpd:
+- mpd.custom:
+    # By default, this plugin has no specified behaviour except leaving the
+    # manifest as-is. You can customize the handling of the manifest in any
+    # way that you want, by editing the process() function in the file:
+    # /etc/manifest-edit/plugins/mpd/custom.py
+
+# Original file: accessibility_add.yaml
 - manifest_edit.plugins.mpd.descriptor_add:
+    # This config file makes use of the "descriptor_add" plugin to add an
+    # "Accessibility" descriptor element to a manifest.
+    #
+    # "descriptor_add" allows to specify the position where the descriptor
+    # will be added with reference to a specific Representation or
+    # Adaptation Set, inside one or more Period if necessary. This reflects
+    # the general structure of a DASH manifest, which is briefly recapped
+    # here to better clarify how to configure the plugin.
+    #
+    # Tracks in mpd manifests are specified as list of Representations
+    # inside a given Adaptation Set, inside a given Period. The general
+    # scheme can roughly be illustrated as
+    #
+    # Manifest:
+    #  |- Period id:
+    #     id = "id"
+    #     |- AdaptationSet :
+    #        contentType = "audio"
+    #        |- Representation
+    #        |-   ...
+    #        |- Representation
+    #     |- AdaptationSet :
+    #        contentType = "video"
+    #        |- Representation
+    #        |-   ...
+    #        |- Representation
+    #
+    # In an mpd there could be multiple periods, each with multiple
+    # adaptation sets, each with multiple representations, to form an
+    # arbitrarily nested structure.
+    #
+    # The descriptor_add plugin allows to add a descriptor to any of those.
+    # This is done by selecting the desired element by means if its properties,
+    # as illustrated by the following examples:
+    #
+    # 1) add an Accessibility descriptor to all adaptation sets in all periods.
+    #
+    #    periods:
+    #      - '*' : '.*'
+    #        adaptationSets:
+    #          - '*' : '.*'
+    #            plugin_config:
+    #              name:"Accessibility"
+    #              schemeIdUri: "<a scheme of choice>"
+    #              value: "<a value of choice>" #value is optional
+    #              id: "<an id of choice>" #id is optional
+    #
+    # 2) add an EssentialProperty to all adaptation sets having
+    #    a "video" contentType, in all periods that have an 'id'
+    #    property
+    #
+    #    periods:
+    #      - id : '.*'
+    #        adaptationSets:
+    #          - contentType :  "video"
+    #            plugin_config:
+    #              name:"EssentialProperty"
+    #              schemeIdUri: "<a scheme of choice>"
+    #              value: "<a value of choice>" #value is optional
+    #              id: "<an id of choice>" #id is optional
+    #
+    # 3) add SupplementalProperty to all representations, in all
+    #    adaptation sets having a "video" contentType, in all periods.
+    #
+    #    periods:
+    #      - '*' : '.*'
+    #        adaptationSets:
+    #          - contentType :  "video"
+    #            representations:
+    #              - '*' : '.*'
+    #                plugin_config:
+    #                  name:"SupplementalProperty"
+    #                  schemeIdUri: "<a scheme of choice>"
+    #                  value: "<a value of choice>" #value is optional
+    #                  id: "<an id of choice>" #id is optional
+    #
+    # Since some descriptors can only be added to specific elements (i.e.
+    # "Accessibility" can only be present in an Adaptation Set, not in a Period
+    # or Representation), the plugin will check for "impossible" configurations
+    # and will only perform manipulations leading to a DASH-compliant manifest.
+    #
+    # More details are available in manifest edit documentation.
     periods:
       - '*' : '.*'
         adaptationSets:
-          - contentType: "video"
-            representations:
-              - '*' : '.*'
-                plugin_config:
-                  name: 'SupplementalProperty'
-                  schemeIdUri: "MyCustomName"
-                  value: "MyCustomValue"
+          - contentType :  "video"
+            plugin_config:
+              name: "Accessibility"
+              schemeIdUri: "MyName"
+              value: "MyValue"
+
+# Original file: adaptation_sets_order.yaml
+- manifest_edit.plugins.mpd.manifest_order:
+    # The manifest_order plugin will rearrange periods, adaptation sets or
+    # representations order in mpd manifests.
+    #
+    # Tracks in mpd manifests are specified as list of Representations
+    # inside a given Adaptation Set, inside a given Period. The general
+    # scheme can roughly be illustrated as
+    #
+    # Manifest:
+    #  |- Period id:
+    #     id = "id"
+    #     |- AdaptationSet :
+    #        contentType = "audio"
+    #        |- Representation
+    #        |-   ...
+    #        |- Representation
+    #     |- AdaptationSet :
+    #        contentType = "video"
+    #        |- Representation
+    #        |-   ...
+    #        |- Representation
+    #
+    # In an mpd there could be multiple periods, each with multiple
+    # adaptation sets, each with multiple representations, to form an
+    # arbitrarily nested structure.
+    #
+    # This plugin can reorder any of this element (periods, adaptationSets
+    # and representations) based on any of their properties.
+    #
+    # The plugin can apply reordering to the entire manifest or it can be
+    # configured to process only certain periods or certain adaptation sets.
+    #
+    # Some examples:
+    #
+    # - reorder periods by decreasing order of id:
+    #
+    #    periods:
+    #      plugin_config:
+    #        orderBy :      "id"
+    #        orderCriteria: "desc"
+    #
+    # - reorder adaptation sets by contentType, decreasing
+    #    order, only for those adaptation sets in period with id = "1"
+    #
+    #    periods:
+    #      - id : "1"
+    #        adaptationSets:
+    #          plugin_config:
+    #            orderBy :      "contentType"
+    #            orderCriteria: "desc"
+    #
+    # - reorder adaptation sets in any period that has an "id" property,
+    #    by contentType, decreasing order
+    #
+    #    periods:
+    #      - id : '.*'
+    #        adaptationSets:
+    #          plugin_config:
+    #            orderBy :      "contentType"
+    #            orderCriteria: "desc"
+    #
+    # - reorder adaptation sets in any period that does not have an "id"
+    #    property, by contentType, decreasing order
+    #
+    #    periods:
+    #      - id : ''
+    #        adaptationSets:
+    #          plugin_config:
+    #            orderBy :      "contentType"
+    #            orderCriteria: "desc"
+    #
+    # - reorder the representations lists present in any period, in
+    #    adaptation sets with contentType="video", based on bandwidth,
+    #    ascending order:
+    #
+    #    periods:
+    #      - '*' : '.*'
+    #        adaptationSets:
+    #          - contentType :  "video"
+    #            representations:
+    #              plugin_config:
+    #                orderBy :      "bandwidth"
+    #                orderCriteria: "asc"
+    #
+    # - reorder the representations lists present in any period, in
+    #    adaptation sets with contentType="video", based on bandwidth,
+    #    ascending order AND, in adaptation sets with contentType="audio",
+    #    based on bandwidth in descending order:
+    #
+    #    periods:
+    #      - '*' : '.*'
+    #        adaptationSets:
+    #          - contentType :  "video"
+    #            representations:
+    #              plugin_config:
+    #                orderBy :      "bandwidth"
+    #                orderCriteria: "asc"
+    #          - contentType :  "audio"
+    #            representations:
+    #              plugin_config:
+    #                orderBy :      "bandwidth"
+    #                orderCriteria: "desc""
+    #
+    #  You can refer to Manifest Edit user manual for more advanced
+    #   configuration examples.
+    periods:
+      - '*' : '.*'
+        adaptationSets:
+          plugin_config:
+            orderBy :      "id"
+            orderCriteria: "desc"
+
+# # Original file: adaptation_sets_remove.yaml
+# - manifest_edit.plugins.mpd.element_remove:
+#     # The element_removal plugin will remove periods, adaptation sets or
+#     # representations order from mpd manifests.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # This plugin can remove any of this element (periods, adaptationSets
+#     # and representations) based on any of their properties.
+#     #
+#     # Some examples:
+#     #
+#     # - remove a period by id
+#     #
+#     #    periods:
+#     #      - id : "1"
+#     #        plugin_config:
+#     #          remove: 'this'
+#     #
+#     # - remove, from any period, those adaptation sets with a specific
+#     #   contentType
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #        - contentType: 'text'
+#     #          plugin_config:
+#     #            remove: 'this'
+#     #
+#     # - remove, from any period but only from "video" adaptation sets, all
+#     #   those representations having a specific bandwidth
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType : 'video'
+#     #            representations:
+#     #              - bandwidth: '901000'
+#     #                plugin_config:
+#     #                  remove: 'this'
+#     #
+#     #  You can refer to Manifest Edit user manual for more advanced
+#     #   configuration examples.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - mimeType : 'text/vtt'
+#             plugin_config:
+#               remove: 'this'
+
+# # Original file: adaptation_sets_representations_order.yaml
+# # This is an example of how you can combine multiple plugins in a
+# #  multi-stage processing pipeline.
+# - manifest_edit.plugins.mpd.manifest_order:
+#     # The manifest_order plugin will rearrange periods, adaptation sets or
+#     # representations order in mpd manifests.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # This plugin can reorder any of this element (periods, adaptationSets
+#     # and representations) based on any of their properties.
+#     #
+#     # The plugin can apply reordering to the entire manifest or it can be
+#     # configured to process only certain periods or certain adaptation sets.
+#     #
+#     # Some examples:
+#     #
+#     # - reorder periods by decreasing order of id:
+#     #
+#     #    periods:
+#     #      plugin_config:
+#     #        orderBy :      "id"
+#     #        orderCriteria: "desc"
+#     #
+#     # - reorder adaptation sets by contentType, decreasing
+#     #    order, only for those adaptation sets in period with id = "1"
+#     #
+#     #    periods:
+#     #      - id : "1"
+#     #        adaptationSets:
+#     #          plugin_config:
+#     #            orderBy :      "contentType"
+#     #            orderCriteria: "desc"
+#     #
+#     # - reorder adaptation sets in any period that has an "id" property,
+#     #    by contentType, decreasing order
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          plugin_config:
+#     #            orderBy :      "contentType"
+#     #            orderCriteria: "desc"
+#     #
+#     # - reorder adaptation sets in any period that does not have an "id"
+#     #    property, by contentType, decreasing order
+#     #
+#     #    periods:
+#     #      - id : ''
+#     #        adaptationSets:
+#     #          plugin_config:
+#     #            orderBy :      "contentType"
+#     #            orderCriteria: "desc"
+#     #
+#     # - reorder the representations lists present in any period, in
+#     #    adaptation sets with contentType="video", based on bandwidth,
+#     #    ascending order:
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              plugin_config:
+#     #                orderBy :      "bandwidth"
+#     #                orderCriteria: "asc"
+#     #
+#     # - reorder the representations lists present in any period, in
+#     #    adaptation sets with contentType="video", based on bandwidth,
+#     #    ascending order AND, in adaptation sets with contentType="audio",
+#     #    based on bandwidth in descending order:
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              plugin_config:
+#     #                orderBy :      "bandwidth"
+#     #                orderCriteria: "asc"
+#     #          - contentType :  "audio"
+#     #            representations:
+#     #              plugin_config:
+#     #                orderBy :      "bandwidth"
+#     #                orderCriteria: "desc""
+#     #
+#     #  You can refer to Manifest Edit user manual for more advanced
+#     #   configuration examples.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           plugin_config:
+#             orderBy :      "id"
+#             orderCriteria: "desc"
+# 
+# - manifest_edit.plugins.mpd.manifest_order:
+#     # you can daisy-chain plugins to obtain more complex
+#     # results
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "video"
+#             representations:
+#               plugin_config:
+#                 orderBy :      "bandwidth"
+#                 orderCriteria: "desc"
+#           - contentType :  "audio"
+#             representations:
+#               plugin_config:
+#                 orderBy :      "bandwidth"
+#                 orderCriteria: "desc"
+
+# # Original file: adaptation_sets_splitting.yaml
+#   - manifest_edit.plugins.mpd.adaptation_sets_splitting:
+#       periods:
+#         - '*' : '.*'
+#           adaptationSets:
+#             - contentType : 'video'
+#               representations:
+#                 - codecs: 'avc1.*'
+#                   plugin_config:
+#                     set_id: '1'
+#                 - codecs: 'hvc1.2.20000000.L93.*'
+#                   plugin_config:
+#                     set_id: '2'
+#                 - codecs: 'hvc1.2.20000000.L120.*'
+#                   plugin_config:
+#                     set_id: '2'
+#                 - codecs: 'hvc1.2.20000000.L123.*'
+#                   plugin_config:
+#                     set_id: '3'
+#                 - codecs: 'hvc1.2.20000000.L153.*'
+#                   plugin_config:
+#                     set_id: '3'
+
+# # Original file: adaptation_sets_switching.yaml
+# # This use case will add all video adaptation sets to a switching set,
+# # using essential property.
+# # It will also add all audio adaptation sets to another switching set,
+# # using supplemental property.
+# - manifest_edit.plugins.mpd.adaptation_sets_switching:
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType: 'video'
+#             plugin_config:
+#               switching_set: '1'
+#               destination: 'essential_property'
+#           - contentType: 'audio'
+#             plugin_config:
+#               switching_set: '2'
+#               destination: 'supplemental_property'
+# 
+# - manifest_edit.plugins.mpd.descriptor_add:
+# 
+
+# # Original file: audiochannelconfiguration_add.yaml
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This config file makes use of the "descriptor_add" plugin to add an
+#     # "AudioChannelConfiguration" descriptor element to a manifest.
+#     #
+#     # "descriptor_add" allows to specify the position where the descriptor
+#     # will be added with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The descriptor_add plugin allows to add a descriptor to any of those.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add an Accessibility descriptor to all adaptation sets in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              name:"Accessibility"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 2) add an EssentialProperty to all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              name:"EssentialProperty"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 3) add SupplementalProperty to all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  name:"SupplementalProperty"
+#     #                  schemeIdUri: "<a scheme of choice>"
+#     #                  value: "<a value of choice>" #value is optional
+#     #                  id: "<an id of choice>" #id is optional
+#     #
+#     # Since some descriptors can only be added to specific elements (i.e.
+#     # "Accessibility" can only be present in an Adaptation Set, not in a Period
+#     # or Representation), the plugin will check for "impossible" configurations
+#     # and will only perform manipulations leading to a DASH-compliant manifest.
+#     #
+#     # More details are available in manifest edit documentation.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "video"
+#             plugin_config:
+#               name: "AudioChannelConfiguration"
+#               schemeIdUri: "MyName"
+#               value: "MyValue"
+
+# # Original file: essential_property_add.yaml
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This config file makes use of the "descriptor_add" plugin to add an
+#     # "EssentialProperty" descriptor element to a manifest.
+#     #
+#     # "descriptor_add" allows to specify the position where the descriptor
+#     # will be added with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The descriptor_add plugin allows to add a descriptor to any of those.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add an Accessibility descriptor to all adaptation sets in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              name:"Accessibility"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 2) add an EssentialProperty to all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              name:"EssentialProperty"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 3) add SupplementalProperty to all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  name:"SupplementalProperty"
+#     #                  schemeIdUri: "<a scheme of choice>"
+#     #                  value: "<a value of choice>" #value is optional
+#     #                  id: "<an id of choice>" #id is optional
+#     #
+#     # Since some descriptors can only be added to specific elements (i.e.
+#     # "Accessibility" can only be present in an Adaptation Set, not in a Period
+#     # or Representation), the plugin will check for "impossible" configurations
+#     # and will only perform manipulations leading to a DASH-compliant manifest.
+#     #
+#     # More details are available in manifest edit documentation.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "video"
+#             representations:
+#               - '*' : '.*'
+#                 plugin_config:
+#                   name: "EssentialProperty"
+#                   schemeIdUri: "MyName"
+#                   value: "MyValue"
+
+# # Original file: essential_property_remove.yaml
+# - manifest_edit.plugins.mpd.descriptor_remove:
+#   # This config file makes use of the "descritor_remove" plugin to remove
+#   # EssentialProperty elements from a manifest.
+#   #
+#   # The plugin removes descriptors matching a specific name,
+#   # schemeIdUri, value or id using regular expressions.
+#   #
+#   # More details about the selection and the syntax for complex and/or
+#   # combinations are available in manifest edit documentation.
+#     periods:
+#       - '*': '.*'
+#         adaptationSets:
+#           - '*': '.*'
+#             plugin_config:
+#               name: "EssentialProperty"
+#               schemeIdUri: 'urn:dvb:dash:lowlatency:critical:2019'
+#               value: 'false'
+
+# # Original file: eventstream_value_add.yaml
+# - manifest_edit.plugins.mpd.eventstream_value_add:
+#   #  This plugins covers a very specific use case, where a certain device
+#   #  would require the presence of a "value" field in an EventStream or
+#   #  it would crash. (!)
+#   #
+#   #  Despite recognizing that "value" is optional and that this behaviour is
+#   #  clearly faulty on the device side, this plugin seems the
+#   #  easiest way forward to provide compatibility.
+#   #
+#   #  Specifically, this plugin changes
+#   #
+#   #  <EventStream
+#   #   schemeIdUri="urn:scte:scte35:2014:xml+bin"
+#   #   timescale="1">
+#   #
+#   #  to
+#   #
+#   #  <EventStream
+#   #   schemeIdUri="urn:scte:scte35:2014:xml+bin"
+#   #   value="1"
+#   #   timescale="1">
+#   #
+#   #  Even if the content of "value" seems irrelevant, it is configurable.
+#   #
+#   #  Should a "value" field be already present in the manifest, no manipulation
+#   #  will be done.
+#     value: "2"
+
+# # Original file: hard_of_hearing_add.yaml
+# # This config file makes use of the "descriptor_add" plugin to add an
+#     # "Accessibility" element to a manifest. It will also make sure the right
+#     # values are added by first removing any similar element.
+#     #
+#     # "descriptor_add" allows to specify the position where the descriptor
+#     # will be added with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The descriptor_add plugin allows to add a descriptor to any of those.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add an Accessibility descriptor to all adaptation sets in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              name:"Accessibility"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 2) add an EssentialProperty to all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              name:"EssentialProperty"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 3) add SupplementalProperty to all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  name:"SupplementalProperty"
+#     #                  schemeIdUri: "<a scheme of choice>"
+#     #                  value: "<a value of choice>" #value is optional
+#     #                  id: "<an id of choice>" #id is optional
+#     #
+#     # Since some descriptors can only be added to specific elements (i.e.
+#     # "Accessibility" can only be present in an Adaptation Set, not in a Period
+#     # or Representation), the plugin will check for "impossible" configurations
+#     # and will only perform manipulations leading to a DASH-compliant manifest.
+#     #
+#     # More details are available in manifest edit documentation.
+# - manifest_edit.plugins.mpd.descriptor_remove:
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "text"
+#             plugin_config:
+#               name: "Accessibility"
+#           - contentType :  "text"
+#             plugin_config:
+#               name: "Role"
+# 
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "text"
+#             plugin_config:
+#               name: "Accessibility"
+#               schemeIdUri: "urn:tva:metadata:cs:AudioPurposeCS:2007"
+#               value: "2"
+#           - contentType :  "text"
+#             plugin_config:
+#               name: "Role"
+#               schemeIdUri: "urn:mpeg:dash:role:2011"
+#               value: "main"
+
+# # Original file: label_add.yaml
+# - manifest_edit.plugins.mpd.label_add:
+#     # This config file makes use of the "label_add" plugin to add a
+#     # "Label" and a "GroupLabel" elements to a manifest.
+#     #
+#     # "label_add" allows to specify the position where the label
+#     # will be added with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The label_add plugin allows to add a label to any Adaptation Set or
+#     # Representation in any period.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add a label to all adaptation sets in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              label:
+#     #                id: 0
+#     #                lang: "en"
+#     #                data: "my label"
+#     #
+#     # 2) add a label to all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              label:
+#     #                id: 0
+#     #                lang: "en"
+#     #                data: "my label"
+#     #
+#     # 3) add a Label and a GroupLabel to all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  label:
+#     #                    id: 0
+#     #                    lang: "en"
+#     #                    data: "my label"
+#     #                  groupLabel:
+#     #                    id: 0
+#     #                    lang: "en"
+#     #                    data: "my group label"
+#     #
+#     # Since labels can only be added to specific elements (i.e.
+#     # Label and GroupLabel can only be present in an Adaptation Set or
+#     # Representation, not in a Period), the plugin will check for "impossible"
+#     # configurations and will only perform manipulations leading to a
+#     # DASH-compliant manifest.
+#     #
+#     # In addition to providing a specific "static" string as label, a
+#     # template syntax is available to use a "dynamic" string that can include
+#     # values read at runtime from attributes of the Period, Adaptation Set or
+#     # Representation where the Label is being added. In other words, it is
+#     # possible to build the Label based on, i.e. a Representation's id,
+#     # resolution or codec using a syntax similar to "This track has resolution
+#     # {width}x{height}". The template values within curly braces "{width}" and
+#     # "{height}" will be replaced at runtime by the actual values present in
+#     # the manifest for that Representation, generating labels such as "This
+#     # track has resolution 1280×720".
+#     #
+#     # More details about the template syntax and in general about the plugin
+#     # are available in manifest edit documentation.
+#     periods:
+#       - id: ".*"
+#         adaptationSets:
+#         - contentType :  "audio"
+#           plugin_config:
+#             label:
+#               id : 1
+#               lang: "{ISO639Alpha3(lang)}"
+#               data: "{ISO639Name(lang)}"
+#         - contentType :  "video"
+#           plugin_config:
+#             groupLabel:
+#               id : 1
+#               lang: "{lang}"
+#               data: "my group label"
+#         - contentType :  "video"
+#           representations:
+#           # matches width < 720
+#           - width: '^([0-6]\d\d|[7][0-1]\d|\d{1,2})$'
+#             plugin_config:
+#               label:
+#                 id : 1
+#                 data: "label for Standard Definition track {id}"
+#           # matches width >= 720
+#           - width: '^([8-9]\d+|[7][2-9]\d|\d{4,})$'
+#             plugin_config:
+#               label:
+#                 id : 1
+#                 data: "label for High Definition track {id}"
+#         # select adaptation set by Role
+#         - role: "main"
+#           lang: "fr"
+#           plugin_config:
+#             label:
+#               data: "Français"
+#         - role: "alternate"
+#           lang: "fr"
+#           plugin_config:
+#             label:
+#               data: "Français (Audio description)"
+#         - role: "subtitle"
+#           lang: "fr"
+#           plugin_config:
+#             label:
+#               data: "Français (Sourds et malentendants)"
+
+# # Original file: label_remove.yaml
+# - manifest_edit.plugins.mpd.label_remove:
+#     # This config file makes use of the "label_remove" plugin to remove
+#     # "Label" and a "GroupLabel" elements from a manifest.
+#     #
+#     # "label_remove" allows to specify the position where the label
+#     # will be removed with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The label_remove plugin allows to remove a label from any Adaptation Set
+#     # or Representation in any period.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) remove a label to all adaptation sets in all periods, specifying all
+#     #    attributes and data of the label
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              label:
+#     #                id: '0'
+#     #                lang: "^en$"
+#     #                data: "my label"
+#     #
+#     # 2) remove a label from all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property, selecting by lang only
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              label:
+#     #                lang: "^en$"
+#     #
+#     # 3) remove all Label and GroupLabel from all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  label:
+#     #                    id: ".*"
+#     #                  groupLabel:
+#     #                    id: ".*"
+#     #
+#     # Notice the use of regular expressions to select labels to remove.
+#     #
+#     # More details are available in manifest edit documentation.
+#     periods:
+#       - id: ".*"
+#         adaptationSets:
+#         - contentType :  "video"
+#           representations:
+#           - '*' : '.*'
+#             plugin_config:
+#               # Only remove labels in representations belonging to "video"
+#               # adaptation sets, whose labels contain the "Standard" string
+#               label:
+#                 - data: "Standard"
+
+# # Original file: low_latency.yaml
+# # This is an example of how you can combine multiple plugins in a
+# #  multi-stage processing pipeline.
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # Low Latency needs this Supplemental Property for every adaptations set
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - '*' : '.*'
+#             plugin_config:
+#               name: "SupplementalProperty"
+#               schemeIdUri : "urn:dvb:dash:lowlatency:critical:2019"
+#               value: "true"
+# 
+# - manifest_edit.plugins.mpd.service_description_add:
+#     # Low Latency requires to add a Service Description element to the
+#     #  mpd root. The "urn:dvb:dash:lowlatency:scope:2019" schemeIdUri is
+#     #  required. Latency and PlaybackRate are optional.
+#     - id: '1'
+#       Scope:
+#         - schemeIdUri: "urn:dvb:dash:lowlatency:scope:2019"
+#           # value: '' #optional
+#           # id: ''    #optional
+#       Latency:
+#         min: 1500
+#         max: 6000
+#         target: 3000
+#         #reference_id: 0 #optional
+#       PlaybackRate:
+#         - min: '0.5' # Etsi Real value, must be provided as strings
+#           max: '1.5' # Etsi Real value, must be provided as strings
+
+# # Original file: low_latency_with_essential_property.yaml
+# # This is an example of how you can combine multiple plugins in a
+# #  multi-stage processing pipeline.
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # Low Latency can be implemented with an Essential Property
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - '*' : '.*'
+#             plugin_config:
+#               name: "EssentialProperty"
+#               schemeIdUri : "urn:dvb:dash:lowlatency:critical:2019"
+#               value: "true"
+# 
+# - manifest_edit.plugins.mpd.service_description_add:
+#     # Low Latency requires to add a Service Description element to the
+#     #  mpd root. The "urn:dvb:dash:lowlatency:scope:2019" schemeIdUri is
+#     #  required. Latency and PlaybackRate are optional.
+#     - id: '1'
+#       Scope:
+#         - schemeIdUri: "urn:dvb:dash:lowlatency:scope:2019"
+#           # value: '' #optional
+#           # id: ''    #optional
+#       Latency:
+#         min: 1500
+#         max: 6000
+#         target: 3000
+#         #reference_id: 0 #optional
+#       PlaybackRate:
+#         - min: '0.5' # Etsi Real value, must be provided as strings
+#           max: '1.5' # Etsi Real value, must be provided as strings
+
+# # Original file: multiple_isms.yaml
+# - manifest_edit.plugins.mpd.segment_url_modify:
+#     # This config file makes use of the "segment_url_modify" plugin to modify
+#     # the "baseURL" and "segmentTemplate" elements of a DASH manifest.
+#     #
+#     # "segment_url_modify" allows to selectively edit the manifest, only
+#     # modifying specific periods, adaptation sets or representations where
+#     # "baseURL" or "segmentTemplate" elements appear, using a selection
+#     # syntax strictly reflecting the general structure of a DASH manifest,
+#     # which is briefly recapped here to better clarify how to configure the
+#     # plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The segment_url_modify plugin allows to edit "baseURL" in any Adaptation
+#     # Set or Representation or Periods as well as in the manifest MPD root.
+#     # The same applies to the "segmentTemplate" element, which can appear in
+#     # any Period, Adaptation Set or Representation.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add a "baseURL" element to the MPD root if not present
+#     #
+#     #    plugin_config:
+#     #      baseURL:
+#     #        match: '^$'
+#     #        replace: 'http://my.base.url'
+#     #
+#     # 2) edit an existing "baseURL" in a Period to use "https" instead of
+#     #    "http"
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        plugin_config:
+#     #          baseURL:
+#     #          match: '^http(.*)'
+#     #          # uses python group reference regular expression syntax
+#     #          replace: 'https\\g<1>'
+#     #
+#     # 3) prefix "media" and "initialization" attributes of a SegmentTemplate
+#     #    element, only in video Adaptation Sets, with a custom string
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            segmentTemplate:
+#     #              initialization:
+#     #                match: '^(.*)$'
+#     #                # uses python group reference regular expression syntax
+#     #                replace: 'myprefix/\\g<1>'
+#     #              media:
+#     #                match: '^(.*)$'
+#     #                # uses python group reference regular expression syntax
+#     #                replace: 'myprefix/\\g<1>'
+#     #
+#     # Since baseURL and SegmentTemplate can only be added to specific elements
+#     # (i.e. baseURL can be present in the manifest root, but SegmentTemplate
+#     # can not), the plugin will check for "impossible"
+#     # configurations and will only perform edits leading to a
+#     # DASH-compliant manifest.
+#     #
+#     # In addition to providing a specific "static" strings in the "replace"
+#     # configuration field, a template syntax is available to use a "dynamic"
+#     # string that can include values read at runtime from attributes of the
+#     # Period, Adaptation Set or Representation where the segmentTemplate or
+#     # baseURL is present.
+#     # In other words, it is possible to build the replace string based on,
+#     # i.e. an Adaptation Set's id,
+#     # contentType or codec using a syntax similar to "{contentType}/\\g<1>".
+#     # The template values within curly braces "{contentType}" will be replaced
+#     # at runtime by the actual values present in the manifest for that
+#     # Adaptation Set, generating baseURL prefixes such as "video/..." or
+#     # "audio/..."
+#     #
+#     # More details are available in manifest edit documentation.
+#     periods:
+#     - id: ".*"
+#       adaptationSets:
+#       - id: ".*"
+#         # Will edit segmentTemplate 'media' and 'initialization' attributes
+#         # in any adaptationSets that belong to any period
+#         plugin_config:
+#           segmentTemplate:
+#             initialization:
+#               match: '^(.*)$'
+#               replace: '{contentType}.ism/\\g<1>'
+#             media:
+#               match: '^(.*)$'
+#               replace: '{contentType}.ism/\\g<1>'
+#     - id: ".*"
+#       # Will edit baseURL in all periods
+#       plugin_config:
+#         baseURL:
+#           match: '^.*$'
+#           replace: 'http://serving.segments.here/dash/'
+
+# # Original file: representations_order.yaml
+# - manifest_edit.plugins.mpd.manifest_order:
+#     # The manifest_order plugin will rearrange periods, adaptation sets or
+#     # representations order in mpd manifests.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # This plugin can reorder any of this element (periods, adaptationSets
+#     # and representations) based on any of their properties.
+#     #
+#     # The plugin can apply reordering to the entire manifest or it can be
+#     # configured to process only certain periods or certain adaptation sets.
+#     #
+#     # Some examples:
+#     #
+#     # - reorder periods by decreasing order of id:
+#     #
+#     #    periods:
+#     #      plugin_config:
+#     #        orderBy :      "id"
+#     #        orderCriteria: "desc"
+#     #
+#     # - reorder adaptation sets by contentType, decreasing
+#     #    order, only for those adaptation sets in period with id = "1"
+#     #
+#     #    periods:
+#     #      - id : "1"
+#     #        adaptationSets:
+#     #          plugin_config:
+#     #            orderBy :      "contentType"
+#     #            orderCriteria: "desc"
+#     #
+#     # - reorder adaptation sets in any period that has an "id" property,
+#     #    by contentType, decreasing order
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          plugin_config:
+#     #            orderBy :      "contentType"
+#     #            orderCriteria: "desc"
+#     #
+#     # - reorder adaptation sets in any period that does not have an "id"
+#     #    property, by contentType, decreasing order
+#     #
+#     #    periods:
+#     #      - id : ''
+#     #        adaptationSets:
+#     #          plugin_config:
+#     #            orderBy :      "contentType"
+#     #            orderCriteria: "desc"
+#     #
+#     # - reorder the representations lists present in any period, in
+#     #    adaptation sets with contentType="video", based on bandwidth,
+#     #    ascending order:
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              plugin_config:
+#     #                orderBy :      "bandwidth"
+#     #                orderCriteria: "asc"
+#     #
+#     # - reorder the representations lists present in any period, in
+#     #    adaptation sets with contentType="video", based on bandwidth,
+#     #    ascending order AND, in adaptation sets with contentType="audio",
+#     #    based on bandwidth in descending order:
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              plugin_config:
+#     #                orderBy :      "bandwidth"
+#     #                orderCriteria: "asc"
+#     #          - contentType :  "audio"
+#     #            representations:
+#     #              plugin_config:
+#     #                orderBy :      "bandwidth"
+#     #                orderCriteria: "desc""
+#     #
+#     #  You can refer to Manifest Edit user manual for more advanced
+#     #   configuration examples.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "video"
+#             representations:
+#               plugin_config:
+#                 orderBy :      "bandwidth"
+#                 orderCriteria: "desc"
+#           - contentType :  "audio"
+#             representations:
+#               plugin_config:
+#                 orderBy :      "bandwidth"
+#                 orderCriteria: "desc"
+# 
+
+# # Original file: representations_remove.yaml
+# - manifest_edit.plugins.mpd.element_remove:
+#     # The element_removal plugin will remove periods, adaptation sets or
+#     # representations order from mpd manifests.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # This plugin can remove any of this element (periods, adaptationSets
+#     # and representations) based on any of their properties.
+#     #
+#     # Some examples:
+#     #
+#     # - remove a period by id
+#     #
+#     #    periods:
+#     #      - id : "1"
+#     #        plugin_config:
+#     #          remove: 'this'
+#     #
+#     # - remove, from any period, those adaptation sets with a specific
+#     #   contentType
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #        - contentType: 'text'
+#     #          plugin_config:
+#     #            remove: 'this'
+#     #
+#     # - remove, from any period but only from "video" adaptation sets, all
+#     #   those representations having a specific bandwidth
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType : 'video'
+#     #            representations:
+#     #              - bandwidth: '901000'
+#     #                plugin_config:
+#     #                  remove: 'this'
+#     #
+#     #  You can refer to Manifest Edit user manual for more advanced
+#     #   configuration examples.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - '*' : '.*'
+#             representations:
+#               - bandwidth: '401000'
+#                 plugin_config:
+#                   remove: 'this'
+#               - bandwidth: '2200000'
+#                 plugin_config:
+#                   remove: 'this'
+#               - bandwidth: '1501000'
+#                 plugin_config:
+#                   remove: 'this'
+
+# # Original file: role_add.yaml
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This config file makes use of the "descriptor_add" plugin to add a
+#     # "Role" descriptor element to a manifest.
+#     #
+#     # "descriptor_add" allows to specify the position where the descriptor
+#     # will be added with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The descriptor_add plugin allows to add a descriptor to any of those.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add an Accessibility descriptor to all adaptation sets in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              name:"Accessibility"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 2) add an EssentialProperty to all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              name:"EssentialProperty"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 3) add SupplementalProperty to all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  name:"SupplementalProperty"
+#     #                  schemeIdUri: "<a scheme of choice>"
+#     #                  value: "<a value of choice>" #value is optional
+#     #                  id: "<an id of choice>" #id is optional
+#     #
+#     # Since some descriptors can only be added to specific elements (i.e.
+#     # "Accessibility" can only be present in an Adaptation Set, not in a Period
+#     # or Representation), the plugin will check for "impossible" configurations
+#     # and will only perform manipulations leading to a DASH-compliant manifest.
+#     #
+#     # More details are available in manifest edit documentation.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "video"
+#             plugin_config:
+#               name: "Role"
+#               schemeIdUri: "MyName"
+#               value: "MyValue"
+
+# # Original file: supplemental_property_add.yaml
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This config file makes use of the "descriptor_add" plugin to add a
+#     # "SupplementalProperty" descriptor element to a manifest.
+#     #
+#     # "descriptor_add" allows to specify the position where the descriptor
+#     # will be added with reference to a specific Representation or
+#     # Adaptation Set, inside one or more Period if necessary. This reflects
+#     # the general structure of a DASH manifest, which is briefly recapped
+#     # here to better clarify how to configure the plugin.
+#     #
+#     # Tracks in mpd manifests are specified as list of Representations
+#     # inside a given Adaptation Set, inside a given Period. The general
+#     # scheme can roughly be illustrated as
+#     #
+#     # Manifest:
+#     #  |- Period id:
+#     #     id = "id"
+#     #     |- AdaptationSet :
+#     #        contentType = "audio"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #     |- AdaptationSet :
+#     #        contentType = "video"
+#     #        |- Representation
+#     #        |-   ...
+#     #        |- Representation
+#     #
+#     # In an mpd there could be multiple periods, each with multiple
+#     # adaptation sets, each with multiple representations, to form an
+#     # arbitrarily nested structure.
+#     #
+#     # The descriptor_add plugin allows to add a descriptor to any of those.
+#     # This is done by selecting the desired element by means if its properties,
+#     # as illustrated by the following examples:
+#     #
+#     # 1) add an Accessibility descriptor to all adaptation sets in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - '*' : '.*'
+#     #            plugin_config:
+#     #              name:"Accessibility"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 2) add an EssentialProperty to all adaptation sets having
+#     #    a "video" contentType, in all periods that have an 'id'
+#     #    property
+#     #
+#     #    periods:
+#     #      - id : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            plugin_config:
+#     #              name:"EssentialProperty"
+#     #              schemeIdUri: "<a scheme of choice>"
+#     #              value: "<a value of choice>" #value is optional
+#     #              id: "<an id of choice>" #id is optional
+#     #
+#     # 3) add SupplementalProperty to all representations, in all
+#     #    adaptation sets having a "video" contentType, in all periods.
+#     #
+#     #    periods:
+#     #      - '*' : '.*'
+#     #        adaptationSets:
+#     #          - contentType :  "video"
+#     #            representations:
+#     #              - '*' : '.*'
+#     #                plugin_config:
+#     #                  name:"SupplementalProperty"
+#     #                  schemeIdUri: "<a scheme of choice>"
+#     #                  value: "<a value of choice>" #value is optional
+#     #                  id: "<an id of choice>" #id is optional
+#     #
+#     # Since some descriptors can only be added to specific elements (i.e.
+#     # "Accessibility" can only be present in an Adaptation Set, not in a Period
+#     # or Representation), the plugin will check for "impossible" configurations
+#     # and will only perform manipulations leading to a DASH-compliant manifest.
+#     #
+#     # More details are available in manifest edit documentation.
+#     periods:
+#       - '*' : '.*'
+#         adaptationSets:
+#           - contentType :  "video"
+#             representations:
+#               - '*' : '.*'
+#                 plugin_config:
+#                   name: "SupplementalProperty"
+#                   schemeIdUri :      "MyName"
+#                   value:      "MyValue"
+
+# # Original file: supplemental_property_remove.yaml
+# - manifest_edit.plugins.mpd.descriptor_remove:
+#   # This config file makes use of the "descritor_remove" plugin to remove
+#   # SupplementalProperty elements from a manifest.
+#   #
+#   # The plugin removes descriptors matching a specific name,
+#   # schemeIdUri, value or id using regular expressions.
+#   #
+#   # More details about the selection and the syntax for complex and/or
+#   # combinations are available in manifest edit documentation.
+#     periods:
+#       - '*': '.*'
+#         adaptationSets:
+#           - '*': '.*'
+#             plugin_config:
+#               name: "SupplementalProperty"
+#               schemeIdUri: 'urn:dvb:dash:lowlatency:critical:2019'
+#               value: 'false'
+
+# # Original file: utc_add.yaml
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This plugin will add an UTCTiming tag to manifests that do not already
+#     # have one. You can choose the scheme by selecting one of the following:
+#     # one or more of the following:
+#     #  http-iso
+#     #  http-xsdate
+#     #  http-ntp
+#     #  ntp
+#     #  http-head
+#     #  direct
+#     # Additionally, you must provide the value that will be used, in the
+#     # format required by the scheme you have selected.
+#     plugin_config:
+#       name: "UTCTiming"
+#       schemeIdUri: "urn:mpeg:dash:utc:http-iso:2014"
+#       value: 'https://time.akamai.com/?iso'
+# 
+
+# # Original file: utc_change.yaml
+# # This is an example of how you can combine multiple plugins in a
+# #  multi-stage processing pipeline.
+# - manifest_edit.plugins.mpd.descriptor_remove:
+#     # This plugin will remove the UTCTiming tag from manifest. You can
+#     # selectively remove only the tags with a certain scheme by specifiying
+#     # one or more of the following:
+#     #  - 'http-iso'
+#     #  - 'http-xsdate'
+#     #  - 'http-ntp'
+#     #  - 'ntp'
+#     #  - 'http-head'
+#     #  - 'direct'
+#     # Alternatively, you can just use:
+#     #  - '*'
+#     # to remove the TAG irrespectively of its scheme
+#     plugin_config:
+#       name: "UTCTiming"
+#       schemeIdUri: ".*"
+# 
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This plugin will add an UTCTiming tag to manifests that do not already
+#     # have one. You can choose the scheme by selecting one of the following:
+#     # one or more of the following:
+#     #  http-iso
+#     #  http-xsdate
+#     #  http-ntp
+#     #  ntp
+#     #  http-head
+#     #  direct
+#     # Additionally, you must provide the value that will be used, in the
+#     # format required by the scheme you have selected.
+#     plugin_config:
+#       name: "UTCTiming"
+#       schemeIdUri: "urn:mpeg:dash:utc:http-iso:2014"
+#       value: 'https://my-own.time.server/?http-iso'
+# 
+# - manifest_edit.plugins.mpd.descriptor_add:
+#     # This plugin will add an UTCTiming tag to manifests that do not already
+#     # have one. You can choose the scheme by selecting one of the following:
+#     # one or more of the following:
+#     #  http-iso
+#     #  http-xsdate
+#     #  http-ntp
+#     #  ntp
+#     #  http-head
+#     #  direct
+#     # Additionally, you must provide the value that will be used, in the
+#     # format required by the scheme you have selected.
+#     plugin_config:
+#       name: "UTCTiming"
+#       schemeIdUri: "urn:mpeg:dash:utc:ntp:2014"
+#       value: 'https://my-own.time.server/?ntp'
+
+# # Original file: utc_remove.yaml
+# - manifest_edit.plugins.mpd.descriptor_remove:
+#     # This plugin will remove the UTCTiming tag from manifest. You can
+#     # selectively remove only the tags with a certain scheme by specifiying
+#     # one or more of the following:
+#     #  - 'http-iso'
+#     #  - 'http-xsdate'
+#     #  - 'http-ntp'
+#     #  - 'ntp'
+#     #  - 'http-head'
+#     #  - 'direct'
+#     # Alternatively, you can just use:
+#     #  - '*'
+#     # to remove the TAG irrespectively of its scheme
+#     plugin_config:
+#       name: "UTCTiming"
+#       schemeIdUri: ".*"
+# 
