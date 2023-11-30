@@ -4,7 +4,7 @@ FROM ubuntu:$UBUNTUVERSION
 ARG ARCH=amd64
 ARG DIST=jammy
 ARG REPO=https://beta.apt.unified-streaming.com/
-ARG VERSION=1.12.12
+ARG VERSION=1.12.13
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y wget gnupg curl
