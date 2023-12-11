@@ -56,6 +56,15 @@ if [ "$REST_API_PORT" ]
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REST_API_PORT"
 fi
 
+# Create publishing point
+if [ ! -f /var/www/live/$CHANNEL/$CHANNEL.isml ]
+  then
+    mkdir -p /var/www/live/$CHANNEL
+    chown -R apache:apache /var/www/live
+    mp4split \
+      -o /var/www/live/$CHANNEL/$CHANNEL.isml \
+      $PUB_POINT_OPTS
+fi
 
 # First arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then

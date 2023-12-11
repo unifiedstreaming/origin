@@ -11,7 +11,7 @@ elif [ -z "$UspLicenseKey" ]
   export UspLicenseKey=$USP_LICENSE_KEY
 fi
 
-# write license key to file
+# Write license key to file
 echo "$UspLicenseKey" > /etc/usp-license.key
 
 # If specified, override default log level and format config
@@ -54,6 +54,16 @@ fi
 if [ "$REST_API_PORT" ]
   then
   export EXTRA_OPTIONS="$EXTRA_OPTIONS -D REST_API_PORT"
+fi
+
+# Create publishing point
+if [ ! -f /var/www/live/$CHANNEL/$CHANNEL.isml ]
+  then
+    mkdir -p /var/www/live/$CHANNEL
+    chown -R apache:apache /var/www/live
+    mp4split \
+      -o /var/www/live/$CHANNEL/$CHANNEL.isml \
+      $PUB_POINT_OPTS
 fi
 
 # Change 'Listen 80' to 'Listen 0.0.0.0:80' to avoid some strange issues when IPv6 is available
