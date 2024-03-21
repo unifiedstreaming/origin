@@ -4,7 +4,7 @@ FROM ubuntu:$UBUNTUVERSION
 ARG ARCH=amd64
 ARG DIST=jammy
 ARG REPO=https://beta.apt.unified-streaming.com/
-ARG VERSION=1.13.2
+ARG VERSION=1.13.3
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y wget gnupg curl
@@ -20,10 +20,10 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
             apt-get -y install libapache2-mod-smooth-streaming; \
         else \
             apt-get -y install \
-                libapache2-mod-smooth-streaming=$VERSION \
-                libapache2-mod-unified-s3-auth=$VERSION \
-                mp4split=$VERSION \
-                manifest-edit=$VERSION; \
+                libapache2-mod-smooth-streaming=$VERSION\* \
+                libapache2-mod-unified-s3-auth=$VERSION\* \
+                mp4split=$VERSION\* \
+                manifest-edit=$VERSION\*; \
         fi
 
 # config stuffs
