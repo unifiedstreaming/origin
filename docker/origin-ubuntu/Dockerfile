@@ -4,7 +4,7 @@ FROM ubuntu:$UBUNTUVERSION
 ARG ARCH=amd64
 ARG DIST=jammy
 ARG REPO=https://beta.apt.unified-streaming.com/
-ARG VERSION=1.15.13
+ARG VERSION=1.15.16
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y wget gnupg curl
@@ -26,10 +26,22 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
                 manifest-edit=$VERSION\*; \
         fi
 
+# apache conf
+COPY conf /etc/apache2
+
 # config stuffs
 RUN a2dismod mpm_prefork mpm_event \
     && a2enmod mpm_worker mod_smooth_streaming \
-    && a2dissite 000-default
+    && a2dissite 000-default \
+    && a2ensite unified-origin
+
+# cleanup
+RUN rm /etc/apache2/sites-available/000-default.conf \
+       /etc/apache2/sites-available/default-ssl.conf \
+       /etc/ssl/certs/ssl-cert-snakeoil.pem \
+       /etc/ssl/certs/ca-certificates.crt \
+       /etc/ssl/private/ssl-cert-snakeoil.key \
+    && update-ca-certificates --fresh
 
 # Copy webpage
 COPY html /var/www/unified-origin/
@@ -37,9 +49,6 @@ COPY html /var/www/unified-origin/
 # entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# apache conf
-COPY conf /etc/apache2
 
 EXPOSE 80
 
