@@ -4,7 +4,7 @@ FROM ubuntu:$UBUNTUVERSION
 ARG ARCH=amd64
 ARG DIST=jammy
 ARG REPO=https://beta.apt.unified-streaming.com/
-ARG VERSION=1.12.11
+ARG VERSION=1.15.22
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y wget gnupg curl
@@ -21,19 +21,32 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
             apt-get -y install libapache2-mod-smooth-streaming; \
         else \
             apt-get -y install \
-                libapache2-mod-smooth-streaming=$VERSION \
-                libapache2-mod-unified-s3-auth=$VERSION \
-                mp4split=$VERSION \
-                manifest-edit=$VERSION; \
+                libapache2-mod-smooth-streaming=$VERSION\* \
+                libapache2-mod-unified-s3-auth=$VERSION\* \
+                mp4split=$VERSION\* \
+                manifest-edit=$VERSION\* \
+                python3-pip; \
         fi
 
 # Yeah, not ideal, I know. Just testing for the moment
-RUN pip install requests
+RUN python3 -m pip install requests
+
+# apache conf
+COPY conf /etc/apache2
 
 # config stuffs
 RUN a2dismod mpm_prefork mpm_event \
-    && a2enmod mpm_worker mod_smooth_streaming wsgi rewrite \
-    && a2dissite 000-default
+    && a2enmod mpm_worker mod_smooth_streaming wsgi rewrite\
+    && a2dissite 000-default \
+    && a2ensite unified-origin
+
+# cleanup
+RUN rm /etc/apache2/sites-available/000-default.conf \
+       /etc/apache2/sites-available/default-ssl.conf \
+       /etc/ssl/certs/ssl-cert-snakeoil.pem \
+       /etc/ssl/certs/ca-certificates.crt \
+       /etc/ssl/private/ssl-cert-snakeoil.key \
+    && update-ca-certificates --fresh
 
 # Copy webpage
 COPY html /var/www/unified-origin/
@@ -44,9 +57,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # create folder for wsgi entrypoints
 RUN mkdir -p /var/www/unified-origin/wsgi-scripts
-
-# apache conf
-COPY conf /etc/apache2
 
 EXPOSE 80
 EXPOSE 8080

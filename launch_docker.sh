@@ -9,4 +9,4 @@ docker run --rm -d \
   -v $(pwd)/my_use_case.yaml:/etc/manifest-edit/conf/mpd/my_use_case.yaml \
   -v $(pwd)/app:/var/www/unified-origin/wsgi-scripts/ \
   --name origin-modwsgi \
-  origin-modwsgi:1.12.11
+  origin-modwsgi:1.15.22
