@@ -4,7 +4,7 @@ FROM ubuntu:$UBUNTUVERSION
 ARG ARCH=amd64
 ARG DIST=jammy
 ARG REPO=https://beta.apt.unified-streaming.com/
-ARG VERSION=1.15.22
+ARG VERSION=1.15.23
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y wget gnupg curl
@@ -22,6 +22,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
             apt-get -y install \
                 libapache2-mod-smooth-streaming=$VERSION\* \
                 libapache2-mod-unified-s3-auth=$VERSION\* \
+                libcuti=$VERSION\* \
                 mp4split=$VERSION\* \
                 manifest-edit=$VERSION\*; \
         fi
