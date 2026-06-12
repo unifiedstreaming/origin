@@ -1,5 +1,5 @@
 from wsgiref.util import request_uri
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 import requests
 import manifest_edit.libfmp4 as libfmp4
 import configparser
@@ -8,34 +8,58 @@ import sys
 import manifests
 from functools import lru_cache
 
+# MANDATORY ENV VARS:
+# - pipeline: the path to the pipeline config file to use for manifest edit.
+# - config_param: the name of the query parameter used by Apache to
+#   understand this is a manifest_edit request. Needs to be removed from the
+#    upstream url
+# - proxy_path: the path prefix used by Apache to route manifest edit requests
+#    the WSGI app. Needs to be removed from the upstream url and is used to
+#    understand which part of the original url is the path to the manifest.
+MANDATORY_ENV_VARS = {"pipeline": None, "config_param": None, "proxy_path": None}
+
 # Should be set as an env by Apache probably
 APACHE_PROXY_PATH = "/manifest-edit"
-UPSTREAM_NETLOC = "localhost"
+UPSTREAM_NETLOC = "127.0.0.1"
 
 s = requests.Session()
 
-def _get_upstream_from(url):
-    """
-    Derives, from the url that Apache is serving, the upstream URL. We assume
-    the upstream server lives at APACHE_UPSTREAM_LOC.
 
+def _get_upstream_from(url, environ):
+    """
+    In order to get the upstream manifest URL, we need to perform some
+    transformations to the original URL requested to Apache.
+    The main transformations are:
+    - change the netloc to point to 127.0.0.1, this should be the most efficient
+        way to perform a "localhost" request
+    - remove the query parameter used by Apache to understand this is a manifest
+        edit request and not a normal request. Failure to do so will end up
+        in the upstream request being mapped to manifest edit again causing
+        an infinite loop.
+    - remove the path prefix used by Apache to route manifest edit requests to
+        the WSGI app. This is needed to get the correct path to the manifest in
+        the upstream request and to avoid again an endless loop.
     Example:
 
-        Apache: http://myorigin.internal/manifest-edit/manifest.ism/.mpd
+        Apache: http://myorigin.internal/manifest-edit/manifest.ism/.mpd?python_config=/etc/manifest-edit/conf/mpd/my_use_case.yaml
 
         becomes
 
-        Upstream: http://localhost/manifest.ism/.mpd
-
-    The lousy part is that the "manifest-edit" path (APACHE_PROXY_PATH) must
-    be aligned with what the user has chosen in its Apache configuration. For
-    this reason, it would be best if it was passed as an env variable, just
-    like we do for the pipeline config file.
+        Upstream: http://127.0.0.1/manifest.ism/.mpd
     """
+
     parsed_url = urlparse(url)
-    parsed_url = parsed_url._replace(netloc=UPSTREAM_NETLOC)
+    query_parts = [
+        (key, value)
+        for key, value in parse_qsl(parsed_url.query, keep_blank_values=True)
+        if key != MANDATORY_ENV_VARS["config_param"]
+    ]
     parsed_url = parsed_url._replace(
-        path=parsed_url.path.replace(APACHE_PROXY_PATH, "")
+        netloc=UPSTREAM_NETLOC,
+        query=urlencode(query_parts),
+    )
+    parsed_url = parsed_url._replace(
+        path=parsed_url.path.replace(MANDATORY_ENV_VARS["proxy_path"], "")
     )
     return urlunparse(parsed_url)
 
@@ -161,12 +185,28 @@ def manifest_edit(manifest, python_pipeline_config):
     return bytes(str(new_manifest), "utf-8")
 
 
+def _check_mandatory_env_vars(start_response, environ):
+    message = ""
+    for var in MANDATORY_ENV_VARS:
+        if var not in environ:
+            message += f"Mandatory env variable '{var}' not found in Apache config. Please check your Apache configuration and make sure to set it.\n"
+
+    return _raise_500_with_msg(start_response, message)
+
+
 def application(environ, start_response):
     request_method = environ.get("REQUEST_METHOD", "")
 
     # Only accept HEAD and GET
     if request_method not in ["GET", "HEAD"]:
         return _method_not_allowed(start_response)
+
+    # Check presence of mandatory env vars
+    MANDATORY_ENV_VARS.update(
+        {k: environ[k] for k in MANDATORY_ENV_VARS if k in environ}
+    )
+    if any(var is None for var in MANDATORY_ENV_VARS):
+        return _check_mandatory_env_vars(start_response, environ)
 
     original_requested_url = request_uri(environ, include_query=True)
 
@@ -176,7 +216,7 @@ def application(environ, start_response):
 
     # from the uri requested to apache, let's build the upstream uri to
     # get the manifest
-    upstream_uri = _get_upstream_from(original_requested_url)
+    upstream_uri = _get_upstream_from(original_requested_url, environ)
 
     # perform synchronous GET request to the Origin and reads all the body
     response = s.get(upstream_uri)

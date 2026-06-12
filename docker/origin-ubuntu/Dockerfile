@@ -28,7 +28,10 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
                 python3-pip; \
         fi
 
-# Yeah, not ideal, I know. Just testing for the moment
+# Yeah, not ideal, I know. Just testing for the moment. Best way would be
+# create a venv, install dependencies there and then pass the venv path
+# to mod-wsgi with the python-home or python-path directives. If you do that
+# make sure the same python is used than the one mod_wsgi was compiled with.
 RUN python3 -m pip install requests
 
 # apache conf

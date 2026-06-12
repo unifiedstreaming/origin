@@ -1,0 +1,17 @@
+services:
+  origin-modwsgi:
+    build:
+      context: ./docker/origin-ubuntu
+    image: origin-modwsgi:1.15.22
+    container_name: origin-modwsgi
+    ports:
+      - "80:80"
+    environment:
+      UspLicenseKey: ${UspLicenseKey}
+      REMOTE_PATH: usp-s3-storage
+      REMOTE_STORAGE_URL: http://usp-s3-storage.s3.eu-central-1.amazonaws.com/
+      LOG_LEVEL: info
+    volumes:
+      - ./elephantsdream:/var/www/unified-origin/elephantsdream/
+      - ./my_use_case.yaml:/etc/manifest-edit/conf/mpd/my_use_case.yaml
+      - ./app:/var/www/unified-origin/wsgi-scripts/
