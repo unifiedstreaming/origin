@@ -77,7 +77,7 @@ def _method_not_allowed(start_response):
 
 
 def _raise_500_with_msg(start_response, message):
-    output = bytes(message + "\n", "utf-8)")
+    output = bytes(message + "\n", "utf-8")
     status_code = "500 Internal Server Error"
     response_headers = [
         ("Content-type", "text/plain"),
@@ -133,24 +133,30 @@ def get_default_python_path():
     return os.path.join(config_base_path, "plugins")
 
 
-# Caching based on yaml config file content allows to unnecessarily repeat, at
-# each call, the yaml parsing and Schema checking parts as well as pipeline
+# Set python path or plugin imports will not work
+python_path = get_default_python_path()
+if python_path is not None:
+    sys.path[1:1] = python_path.split(os.pathsep)
+
+
+import manifest_edit.entrypoints as ep
+
+# Caching based on yaml config file timestamt allows to unnecessarily repeat, at
+# each call, a file read and yaml parsing and Schema checking parts as well as
+# pipeline
 # building, while still allowing users to change yaml configuration files
 # content without needing to restart Apache.
 # By default only saves last 128 function calls results.
-@lru_cache
-def get_pipeline_from_buffer(ep, buffer):
-    return ep.Pipeline.build_pipeline_from_string(buffer)
-
-
-# We could also decide to memoize this function, but it will mean that, once
-# a given yaml file has been loaded, changes won't affect Manifest Edit
-# untile a restart.
-def get_pipeline(ep, python_pipeline_config):
+@lru_cache(maxsize=None)
+def _get_pipeline_cached(ep, python_pipeline_config, mtime):
     with open(python_pipeline_config, "rb") as stream:
         buffer = stream.read()
+    return ep.Pipeline.build_pipeline_from_string(buffer)
 
-    return get_pipeline_from_buffer(ep, buffer)
+def get_pipeline(ep, python_pipeline_config):
+    mtime = os.path.getmtime(python_pipeline_config)
+    return _get_pipeline_cached(ep, python_pipeline_config, mtime)
+
 
 
 def manifest_edit(manifest, python_pipeline_config):
@@ -162,13 +168,7 @@ def manifest_edit(manifest, python_pipeline_config):
     if not python_pipeline_config:
         raise Exception("You have not provided a pipeline file!")
 
-    # Set python path or imports will not work
-    python_path = get_default_python_path()
-    if python_path is not None:
-        python_path_parts = python_path.split(os.pathsep)
-        sys.path[1:1] = python_path_parts
 
-    import manifest_edit.entrypoints as ep
 
     # loads a pipeline description, imports all needed plugins, configures
     # them and sets up the processing pipeline.
@@ -205,7 +205,7 @@ def application(environ, start_response):
     MANDATORY_ENV_VARS.update(
         {k: environ[k] for k in MANDATORY_ENV_VARS if k in environ}
     )
-    if any(var is None for var in MANDATORY_ENV_VARS):
+    if any(v is None for v in MANDATORY_ENV_VARS.values()):
         return _check_mandatory_env_vars(start_response, environ)
 
     original_requested_url = request_uri(environ, include_query=True)
@@ -219,7 +219,7 @@ def application(environ, start_response):
     upstream_uri = _get_upstream_from(original_requested_url, environ)
 
     # perform synchronous GET request to the Origin and reads all the body
-    response = s.get(upstream_uri)
+    response = s.get(upstream_uri, timeut=5)
     content = response.content
 
     # If the response is 200 OK, we have a manifest. Now we can invoke
