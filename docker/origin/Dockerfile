@@ -6,7 +6,7 @@ FROM alpine:$ALPINEVERSION
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG ALPINEVERSION
 ARG REPO=https://beta.apk.unified-streaming.com/alpine/
-ARG VERSION=1.15.20
+ARG VERSION=1.15.26
 
 # Get USP public key
 RUN wget -q -O /etc/apk/keys/alpine@unified-streaming.com.rsa.pub \
@@ -17,6 +17,7 @@ RUN apk \
     --update \
     --repository $REPO/v$ALPINEVERSION \
     add \
+        libcuti~$VERSION \
         mp4split~$VERSION \
         mp4split-ffmpeg-plugins~$VERSION \
         mod_smooth_streaming~$VERSION \
